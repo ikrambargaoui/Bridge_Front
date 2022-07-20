@@ -1,0 +1,8 @@
+export const ADD_ERROR = "ADD_ERROR"
+export const REMOVE_ERROR = "REMOVE_ERROR"
+export const SET_CURRENT_USER = "SET_CURRENT_USER"
+export const GET_DOCUMENTS = "GET_DOCUMENTS"
+export const GET_USER = "GET_USER"
+export const GET_COLUMN_CONFIG = "GET_COLUMN_CONFIG"
+export const GET_HABILITATIONS = "GET_HABILITATIONS"
+export const SET_USER_INFO= "SET_USER_INFO"

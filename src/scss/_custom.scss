@@ -1,0 +1,89 @@
+
+ul.nav li a:hover:not(.active) {
+  background-color:#be0b0b;}
+
+ul.nav li a.active:hover,
+ul.nav li a.active {
+  //  background-color:#b30000;
+  background-color:#be0b0b;
+}
+  
+
+.btn-primary{
+    background-color:#be0b0b;
+   border-color: #be0b0b;
+}
+.btn-info{
+    color: white;
+}
+ul.nav li a.i.active:hover,
+ul.nav li a.i.active {
+  //  background-color:#b30000;
+  background-color:#be0b0b;
+}
+
+ //a.active {
+    //  background-color:#b30000;
+ //color:#be0b0b;
+ //text-decoration-color: #be0b0b;
+
+//  }
+
+  a {
+   color:#be0b0b;
+}
+  
+//   /* visited link */
+//   a:visited {
+//     color:#be0b0b;
+// }
+  
+//   /* mouse over link */
+//   a:hover {
+//     color:#be0b0b;
+// }
+  
+//   /* selected link */
+//   a:active {
+//     color:#be0b0b;
+// }
+
+
+.CardBody.Card.bg-primary{
+    background-color:#be0b0b;
+ 
+}
+
+.nav-dropdown-items {
+padding-left:15px !important;
+font-size: 80% ;
+}
+
+.nav-icon{
+    color:#be0b0b !important;
+}
+
+.sidebar-minimized .sidebar .nav-link:hover {
+  background: #be0b0b !important;
+}
+
+
+.row-event{
+  max-height: 5px !important;
+}
+
+
+.nav-item nav-dropdown{
+  font-weight: bolder;
+}
+
+
+.open > .nav-icon{
+  color:rgb(28, 143, 209)  !important;
+
+}
+
+.table-responsive{
+  overflow-x: auto !important;
+  overflow-y:auto !important;
+}
