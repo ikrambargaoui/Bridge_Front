@@ -65,8 +65,6 @@ class GestionStructure extends Component {
         })
     }
 
-
-
   }
 
 

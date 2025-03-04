@@ -8,9 +8,9 @@ export const getUser = () => dispatch => {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + token
     }
-    axios.get(URL+'/Rest/Api/appuser/findUserByUserCode', { headers: headers })
-        .then(res =>{
-            console.log("user By code: ",res)
+    axios.get(URL + '/Bridge/appuser/findUserByUserCode', { headers: headers })
+        .then(res => {
+            console.log("user By code: ", res)
             dispatch({
                 type: GET_USER,
                 user: {
@@ -18,8 +18,9 @@ export const getUser = () => dispatch => {
                     lastName: res.data.appUserLastName,
                     roles: res.data.roles//[0].profile_id
                 }
-            })}
-            )
+            })
+        }
+        )
         .catch(err => console.log(err))
 }
 

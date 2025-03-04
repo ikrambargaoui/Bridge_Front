@@ -6,16 +6,25 @@ const URL = require('../Config/Config').Url;
 
 
 export function AddDelegation(param1, param2, param3) {
+
+    const token = localStorage.getItem('jwtToken');
+    var headers = {
+        'Content-Type': 'application/json',
+        'Authorization': "Bearer " + token,
+        'Access-Control-Allow-Origin': '*'
+    }
+
     return new Promise((resolve, reject) => {
-        return apiCall('post', URL + '/Rest/Api/Delegations/AddDelegation', {
+        return apiCall('post', URL + '/Bridge/Delegations/AddDelegation', {
             delegueCode: param1,
             dateDebDelegation: param2,
-            dateFinDelegation: param3,
-        }).then(
+            dateFinDelegation: param3
+        }, { headers }
+        ).then(
             res => {
-                console.log("je suis dans l api"+res.msg)
+
                 resolve(res);
-                console.log("this is the resulat" + res)
+
             })
             .catch(err => {
                 reject(err);
@@ -28,7 +37,7 @@ export function AddDelegation(param1, param2, param3) {
 
 export function DelegationsOut() {
     return new Promise((resolve, reject) => {
-        return apiCall('get', URL + '/Rest/Api/Delegations/DelegationsOut', null).then(
+        return apiCall('get', URL + '/Bridge/Delegations/DelegationsOut', null).then(
             res => {
                 resolve(res);
             })
@@ -45,7 +54,7 @@ export function DelegationsOut() {
 
 export function DelegationsIn() {
     return new Promise((resolve, reject) => {
-        return apiCall('get', URL + '/Rest/Api/Delegations/DelegationsIn', null).then(
+        return apiCall('get', URL + '/Bridge/Delegations/DelegationsIn', null).then(
             res => {
                 resolve(res);
             })
@@ -60,7 +69,7 @@ export function DelegationsIn() {
 export function DeleteDelegation(param) {
 
     return new Promise((resolve, reject) => {
-        return apiCall("get", URL + '/Rest/Api/Delegations/DeleteDelegation/' + param, null).then(
+        return apiCall("get", URL + '/Bridge/Delegations/DeleteDelegation/' + param, null).then(
             (res) => {
                 resolve(res);
             })

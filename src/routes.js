@@ -3,31 +3,21 @@ import DefaultLayout from './Components/containers/DefaultLayout';
 
 const Rights = React.lazy(() => import('./Components/Right/Rights'));
 const gestionRight = React.lazy(() => import('./Components/Right/gestionRight'));
-
-
+const updateUser = React.lazy(() => import('./Components/User/UpdateUser'))
+const updatePassword = React.lazy(() => import('./Components/User/UpdatePassword'))
 const ActionLog = React.lazy(() => import('./Components/ActionLog/actionlog'));
 const configcol = React.lazy(() => import('./Components/ConfigColonne/configcol'));
-
 const profil = React.lazy(() => import('./Components/Profil/profil'));
-
 const gestionProfil = React.lazy(() => import('./Components/Profil/gestionProfil'));
-
 const userInfo = React.lazy(() => import('./Components/Common/UserInformation'));
-
-
 const GestionDelegation = React.lazy(() => import('./Components/Delegation/GestionDelegation'));
 const delegation = React.lazy(() => import('./Components/Delegation/delegation'));
 const MesDelegations = React.lazy(() => import('./Components/Delegation/MesDelegations'));
-
 const RechercheAvancee = React.lazy(() => import('./Components/rechercheAvancee/RechercheAvancee'));
-
-
-
-
 const DocumentView = React.lazy(() => import('./Components/SimpleSearch/DocumentView'));
 const GestionStructure = React.lazy(() => import('./Components/Structure/GestionStructure'));
 const GestionHabilitation = React.lazy(() => import('./Components/Habilitation/GestionHabilitation'));
-
+const GestionUser = React.lazy(() => import('./Components/User/GestionUsers'));
 const Navbars = React.lazy(() => import('./Components/Navbars'));
 const Navs = React.lazy(() => import('./Components/Navs'));
 const Paginations = React.lazy(() => import('./views/Base/Paginations'));
@@ -48,9 +38,8 @@ const SimpleLineIcons = React.lazy(() => import('./views/Icons/SimpleLineIcons')
 const Colors = React.lazy(() => import('./views/Theme/Colors'));
 const Users = React.lazy(() => import('./views/Users/Users'));
 const User = React.lazy(() => import('./views/Users/User'));
-
+const Acceuil = React.lazy(() => import('./Components/Dashboard/Acceuil'));
 const SimpleSearch = React.lazy(() => import('./Components/SimpleSearch/SimpleSearch'));
-//const Breadcrumbs = React.lazy(() => import('./views/Base/Breadcrumbs'));
 const Cards = React.lazy(() => import('./views/Base/Cards'));
 const Carousels = React.lazy(() => import('./views/Base/Carousels'));
 const Collapses = React.lazy(() => import('./views/Base/Collapses'));
@@ -64,6 +53,7 @@ const Badges = React.lazy(() => import('./views/Notifications/Badges'));
 const Modals = React.lazy(() => import('./views/Notifications/Modals'));
 const Typography = React.lazy(() => import('./views/Theme/Typography'));
 const Widgets = React.lazy(() => import('./views/Widgets/Widgets'));
+
 
 
 // https://github.com/ReactTraining/react-router/tree/master/packages/react-router-config
@@ -121,15 +111,19 @@ const routes = [
   { path: '/configcol', name: 'configcol', component: configcol },
   { path: '/profil', name: 'profil', component: profil },
   { path: '/gestionProfil', name: 'gestionProfil', component: gestionProfil },
-  { path: '/rechercheAvancee', name: 'Recherche Avancée', component: RechercheAvancee },
+  { path: '/rechercheCiblee', name: 'Recherche Ciblée', component: RechercheAvancee },
   { path: '/Rights', name: 'Rights', component: Rights },
   { path: '/gestionRight', name: 'gestionRight', component: gestionRight },
-
+  { path: '/GestionUtilisateurAgence', name: 'Gestion des utilisateurs', component: GestionUser },
+  { path: '/Acceuil', name: 'Acceuil', component: Acceuil },
+  { path: '/updateUser', name: 'updateUser', component: updateUser },
+  { path: '/updatePassword', name: 'updatePassword', component: updatePassword },
+ 
   
 
-  
 
-  
+
+
 
 
 ];

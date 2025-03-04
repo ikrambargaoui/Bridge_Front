@@ -21,7 +21,7 @@ export default {
         },
         {
           name: 'Recherche Avancée',
-          url: '/RechercheAvancee',
+          url: '/RechercheCiblee',
           icon: 'icon-magnifier',
         }]
     },

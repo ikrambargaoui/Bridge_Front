@@ -2,17 +2,15 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom';
 import { confirmAlert } from 'react-confirm-alert';
-
+import { IoMdDownload } from "react-icons/io";
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 import { } from '../Tables/example.scss';
 import { } from '../Tables/lib/styles.css';
-import { } from '../Tables/example.scss';
-import { } from '../Tables/lib/styles.css';
-
 import Switch from "react-switch";
-
+import { GrView } from "react-icons/gr";
+import { FaUnlockKeyhole } from "react-icons/fa6";
 //import Popup from "reactjs-popup";
-
+import { PiFileCsvDuotone } from "react-icons/pi";
 
 
 import {
@@ -21,7 +19,8 @@ import {
   CardBody,
   CardHeader,
   Alert,
-  view
+  view,
+  Badge
 
 } from 'reactstrap';
 /*Dialog*/
@@ -44,14 +43,14 @@ import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import Checkbox from '@material-ui/core/Checkbox';
 import CommentIcon from '@material-ui/icons/Comment';
-import { getDocsOfUser } from '../../Store/Actions/GetDocs'
+
 import { getMailsList, sendMail } from '../../Services/mailServices';
 import { removeADocument } from '../../Services/docsServices';
 import { postEtatHabilitation } from '../../Services/HabilitationServices';
 import { deleteRowHabilitation } from '../../Services/HabilitationServices';
 import { postStructure } from '../../Services/StructureService';
 import { deleteStructure } from '../../Services/StructureService';
-import { DownloadAPdf } from '../../Services/docsServices';
+import { DownloadAPdf, DownloadACsv } from '../../Services/docsServices';
 
 import DialogInfo from '../SimpleSearch/DialogInfo'
 
@@ -64,7 +63,8 @@ import { AddRightToProfile } from '../../Services/rightService';
 import { updateCol } from '../../Services/columnService';
 import { CardActionArea } from '@material-ui/core';
 import ActionLogDetail from '../ActionLog/ActionLogDetail'
-
+import { changeStateUser } from '../../Services/userService';
+import { getCol } from '../../Services/columnService';
 
 /****************************for mail*/
 const DialogTitle = withStyles(theme => ({
@@ -133,22 +133,15 @@ class EventRow extends Component {
       openDialgAdd: false,
       colorAdd: '',
       check: true,
+      disabledBtnSendMail: false
 
     };
-    //this.handleChange1 = this.handleChange1.bind(this); 
+
   }
 
 
 
-
-  /* handleChange1(check) {
-    this.setState({ check });
-  } */
-
-
   handleChange1 = (param1, param2) => {
-    console.log("lid est " + param1)
-    console.log("l a vis  est " + param2)
     updateCol(param1, param2).then();
 
   };
@@ -158,6 +151,7 @@ class EventRow extends Component {
     this.setState({
       open: true,
       param: param,
+      disabledBtnSendMail: false
     });
     getMailsList(param)
       .then(res => this.setState({ mails: res })
@@ -201,42 +195,39 @@ class EventRow extends Component {
 
 
   RoleUser(idUser, idEvent) {
-    console.log("00 FUNCTION");
+
     if (document.getElementById(idEvent).getAttribute('class') === "btn btn-danger btn-sm") {
       DeleteRole(idUser, idEvent)
         .then(res => {
-          console.log("00 ADD");
-          console.log("00 ADD",res);
-          if (res.assignmentDate!=='') {
-            
-            this.setState({ res_add: "Suppression de profile effectuée avec succès", openDialgAdd: true, colorAdd: "success" });
+
+          if (res.assignmentDate !== '') {
+
+            this.setState({ res_add: "Profil supprimé avec succès", openDialgAdd: true, colorAdd: "success" });
             document.getElementById(idEvent).color = "success";
             document.getElementById(idEvent).className = "btn btn-success btn-sm";
             document.getElementById(idEvent).children[0].className = "fa fa-plus";
 
           }
           else
-            this.setState({ res_add: "Echecs suppression de profile", openDialgAdd: true, colorAdd: "danger" })
-        } ,
+            this.setState({ res_add: "Echecs suppression de profil", openDialgAdd: true, colorAdd: "danger" })
+        },
 
         )
     }
     else {
       AddRole({ idUser: idUser, idProfile: idEvent }).then(res => {
 
-        
-        console.log("00 DEL");
-        console.log("00 DEL",res);
-        if (res.assignmentDate!=='') {
-          
-          this.setState({ res_add:  "Ajout de profile effectué avec succès", openDialgAdd: true, colorAdd: "success" });
+
+        if (res.assignmentDate !== '') {
+
+          this.setState({ res_add: "Profil ajouté avec succès", openDialgAdd: true, colorAdd: "success" });
           document.getElementById(idEvent).color = "danger";
           document.getElementById(idEvent).className = "btn btn-danger btn-sm";
           document.getElementById(idEvent).children[0].className = "fa fa-trash";
 
         }
-        else this.setState({ res_add: "Echecs Ajout de profile", openDialgAdd: true, colorAdd: "danger" })
-      } ,
+        else this.setState({ res_add: "Echecs Ajout de profil", openDialgAdd: true, colorAdd: "danger" })
+      },
 
       ).catch(err => console.log(err))
 
@@ -262,10 +253,10 @@ class EventRow extends Component {
             </Alert>
           </DialogContent>
           <DialogActions>
-           {/*  <Button label="Message" color="success"> Envoyer </Button> */}
-               <Button  onClick={()=>this.setState({openDialgAdd:false})} color="primary">Fermer </Button> 
-         </DialogActions>
-        </Dialog> 
+            {/*  <Button label="Message" color="success"> Envoyer </Button> */}
+            <Button onClick={() => this.setState({ openDialgAdd: false })} color="primary">Fermer </Button>
+          </DialogActions>
+        </Dialog>
 
       </div>;
     } else {
@@ -284,9 +275,9 @@ class EventRow extends Component {
             </Alert>
           </DialogContent>
           <DialogActions>
-           {/*  <Button label="Message" color="success"> Envoyer </Button> */}
-               <Button  onClick={()=>this.setState({openDialgAdd:false})} color="primary">Fermer </Button> 
-         </DialogActions>
+            {/*  <Button label="Message" color="success"> Envoyer </Button> */}
+            <Button onClick={() => this.setState({ openDialgAdd: false })} color="primary">Fermer </Button>
+          </DialogActions>
         </Dialog>
 
 
@@ -296,45 +287,6 @@ class EventRow extends Component {
     }
   }
 
-
-  /**** added by haifa  */
-  /* RightProfile(idUser, idEvent) {
-   // console.log
-    if (document.getElementById(idEvent).getAttribute('class')==="btn btn-danger btn-sm") {
-      deleteRightFromProfile(idUser, idEvent)
-        .then(
-          document.getElementById(idEvent).color = "success",
-          document.getElementById(idEvent).className = "btn btn-success btn-sm",
-          document.getElementById(idEvent).children[0].className = "fa fa-plus"
-        )
-    }
-     else 
-     {
-      AddRightToProfile({ idProfile: idUser, idRight: idEvent }).
-      then(  
-        res => 
-        {  if (res.msg) 
-          {  this.setState({ res_add: res.msg , openDialgAdd: true, colorAdd :"success"});
-           
-            document.getElementById(idEvent).color = "danger";
-            document.getElementById(idEvent).className = "btn btn-danger btn-sm";
-            document.getElementById(idEvent).children[0].className = "fa fa-trash";
-          }
-          else 
-          {
-
-            console.log("2222222222222");
-            //
-            this.setState({ res_add: res.error , openDialgAdd: true , colorAdd :"danger" }) 
-            
-          } 
-        } 
-      ).catch(err => console.log(err));
-      //
-      console.log("ok");
-
-    } 
-  }  */
 
 
 
@@ -354,7 +306,7 @@ class EventRow extends Component {
           }
           else
             this.setState({ res_add: res.error, openDialgAdd: true, colorAdd: "danger" })
-        } ,
+        },
 
         )
     }
@@ -370,7 +322,7 @@ class EventRow extends Component {
 
         }
         else this.setState({ res_add: res.error, openDialgAdd: true, colorAdd: "danger" })
-      } ,
+      },
 
       ).catch(err => console.log(err))
 
@@ -470,25 +422,33 @@ class EventRow extends Component {
 
   //Send a mail 
   send = (param, param1, param2, param3) => {
-    this.setState({ mailResultDisplay: "none" })
+    //hello
+    this.setState({ mailResultDisplay: "none", disabledBtnSendMail: true })
     if (this.state.email !== '') {
       param3.push(this.state.email);
     };
     sendMail(param, param1, param2, param3)
       .then(res => {
         console.log('aaa', res.msg)
-        if (res.msg === "Echec d'envoi!!") { this.setState({ mailResultDisplay: "block", res_mail: res, checked: [] }) }
-        else if (res.msg === "Vous devez saisir au moins un destinataire!!") { this.setState({ mailResultDisplay: "block", res_mail: res, checked: [] }) }
+        if (res.msg === "Echec d'envoi!!") { this.setState({ mailResultDisplay: "block", res_mail: res, checked: [], disabledBtnSendMail: false }) }
+        else if (res.msg === "Vous devez saisir au moins un destinataire!!") { this.setState({ mailResultDisplay: "block", res_mail: res, checked: [], disabledBtnSendMail: false }) }
         else {
-          this.setState({ checked: [], res_mail: res, open: false, mailResultDisplay: "none", openSecondDialog: true })
+          this.setState({ checked: [], res_mail: res, open: false, mailResultDisplay: "none", openSecondDialog: true, disabledBtnSendMail: false })
           setTimeout(() => {
             this.setState({ openSecondDialog: false })
 
-            //document.location.reload(true);
-          }, 1000);
+
+          }, 1500);
         }
       }
-      )
+      ).catch(error => {
+        alert(error)
+        setTimeout(() => {
+          this.setState({ open: false })
+
+
+        }, 500);
+      })
 
 
   };
@@ -521,7 +481,24 @@ class EventRow extends Component {
 
   //Download a pdf file
   download = (id, name) => {
+    console.log('download  ', id, name)
     DownloadAPdf(id)
+      .then((response) => {
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', name);
+        document.body.appendChild(link);
+        link.click();
+      })
+      .catch(err => console.log(err))
+  }
+
+
+  //Download a pdf file
+  downloadCsv = (id, name) => {
+    console.log('download  ', id, name)
+    DownloadACsv(id)
       .then((response) => {
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
@@ -536,12 +513,24 @@ class EventRow extends Component {
 
 
 
+
+
   //remove visilbility of a document
   removeDoc = (param) => {
     removeADocument(param)
       .then((response) => {
-        this.props.getDocsOfUser()
+
         this.setState({ removed: "removed" })
+      })
+      .catch(err => console.log(err))
+  }
+
+
+  removeUser = (param, state) => {
+    let finalEtat = state === "Actif" ? "Inactif" : 'Actif'
+    changeStateUser(param, finalEtat)
+      .then((response) => {
+        window.location.reload();
       })
       .catch(err => console.log(err))
   }
@@ -554,12 +543,35 @@ class EventRow extends Component {
       customUI: ({ onClose }) => {
         return (
           <Card className="main-card mb-3">
-            <CardHeader><h2>Confirmation...</h2></CardHeader>
+            <CardHeader><h2></h2></CardHeader>
             <CardBody>
               <div className='custom-ui'>
-                <p><strong>Êtes-vous sûr de cacher ce document?</strong></p>
+                <p><strong>Etes-vous sure de vouloir cacher ce document?</strong></p>
                 <div align="right">
                   <Button color="success" onClick={() => { this.removeDoc(id); onClose(); }}>Confirmer</Button>&nbsp;
+                  <Button color="danger" onClick={onClose}>Annuler</Button>
+                </div>
+              </div>
+            </CardBody>
+
+          </Card>
+        );
+      }
+    });
+  };
+
+
+  submitUserDelete = (id, etat) => {
+    confirmAlert({
+      customUI: ({ onClose }) => {
+        return (
+          <Card className="main-card mb-3">
+            <CardHeader><h2></h2></CardHeader>
+            <CardBody>
+              <div className='custom-ui'>
+                <p><strong>Etes-vous sure de vouloir {etat === "Actif" ? "désactiver" : "activer"} ce compte?</strong></p>
+                <div align="right">
+                  <Button color="success" onClick={() => { this.removeUser(id, etat); onClose(); }}>Confirmer</Button>&nbsp;
                   <Button color="danger" onClick={onClose}>Annuler</Button>
                 </div>
               </div>
@@ -579,16 +591,16 @@ class EventRow extends Component {
       customUI: ({ onClose }) => {
         return (
           <Card className="main-card mb-3">
-            <CardHeader><h2>Confirmation...</h2></CardHeader>
+            <CardHeader><h2></h2></CardHeader>
             <CardBody>
               <div className='custom-ui'>
-                <p><strong>Êtes-vous sûr de supprimer cette délégation ?</strong></p>
+                <p><strong>Etes-vous sure de vouloir supprimer cette délégation ?</strong></p>
                 <div align="right">
                   <Button color="success" onClick={() => { this.Delete_Delegation(id); onClose(); }}>Confirmer</Button>&nbsp;
                   <Button color="danger" onClick={onClose}>Annuler</Button>
                 </div>
               </div>
-            </CardBody>structure
+            </CardBody>
           </Card>
         );
       }
@@ -614,33 +626,46 @@ class EventRow extends Component {
     if ((this.props.ComponentName == 'SimpleSearch') || (this.props.ComponentName == 'AdvancedSearch')) {
 
       if (!event.typeDocument && !event.accountNumber)
-        return <Alert color='danger' style={{ position: 'absolute', BackgroundColor: "danger", left: '40%', top: '60%', fontSize: '20px' }}>No results found</Alert>
+        return <Alert color='danger' style={{ position: 'absolute', BackgroundColor: "danger", left: '40%', top: '60%', fontSize: '20px' }}>Aucun document trouvé</Alert>
       else return (
 
         <tr className={" " + this.state.removed} >
-          {(this.props.ComponentName == 'SimpleSearch') ? <td>{this.props.rank + 1}</td> : null}
+          {(this.props.ComponentName == 'SimpleSearch') ? <td>{this.props.index + 1}</td> : null}
           {this.props.details.map((el, key) => {
             if (el.nomColonne == 'accountingDate')
-              return (<td key={el.colonneDisplay}> {new Date(event[el.nomColonne]).toLocaleDateString()}</td>);
+              return (<td key={el.colonneDisplay}> {event[el.nomColonne]}</td>);
+
+
+            else if (el.nomColonne == 'contentieux')
+
+
+              return (
+
+                <td key={el.colonneDisplay}>
+                  <Badge
+                    color={event.contentieux === "NON" ? "success" : ((event.contentieux === "NON") ? "danger" : "")}
+                    pill>
+                    {(event.contentieux) === "NON" ? "Non" : ((event.contentieux) === "OUI" ? "Oui" : "-")}</Badge></td>
+
+
+              );
+
+
             else
-              return (<td key={el.colonneDisplay} >{event[el.nomColonne] != null ? event[el.nomColonne] : 'NOT FOUND'} </td>);
+              return (<td key={el.colonneDisplay} >{event[el.nomColonne] != null ? event[el.nomColonne] : ' '} </td>);
           }
           )
           }
           <td>
 
-            <Button color='transparent' size="sm" className="mr-1 ml-0" style={{ margin: "0px", padding: "0px" }}>
+            <Button color='transparent' size="sm" className="mr-2" style={{ margin: "0px", padding: "0px" }}>
               <DialogInfo doc={event} />
             </Button>
+            <Link to={`/DocumentView/${event.key}`}  ><Button color="danger" size="sm" className="mr-2"><i className="fa fa-eye"></i></Button> </Link>
+            <Button color="primary" size="sm" className="mr-2" onClick={() => this.download(event.key, event.fileNameOut)}><i className="fa fa-download"></i></Button>
+            {event.fileNameOutCsv != null && <Button color="success" size="sm" className="mr-2" onClick={() => this.downloadCsv(event.key, event.fileNameOutCsv)}>csv</Button>
+            }
 
-
-            <Link to={`/DocumentView/${event.id}`}  ><Button color="success" size="sm" className="mr-2"><i className="fa fa-eye"></i></Button> </Link>
-
-
-
-            <Button color="primary" size="sm" className="mr-2" onClick={() => this.download(event.id, event.fileNameOut)}><i className="fa fa-download"></i></Button>
-
-            <Button color="warning" size="sm" className="mr-2" onClick={() => this.Mail(event.id)} ><i className="fa fa-envelope"></i></Button>
 
             <Dialog
               onClose={this.handleClose}
@@ -672,7 +697,7 @@ class EventRow extends Component {
                   <div className="panel panel-default">
                     <div className="panel-heading">
                       <h5 className="panel-title">
-                        Êtes-vous sûr de vouloir envoyer le document au client ?
+                        Etes-vous sure de vouloir envoyer le document au client ?
                       </h5>
 
 
@@ -709,7 +734,7 @@ class EventRow extends Component {
                 </div>
               </DialogContent>
               <DialogActions>
-                <Button onClick={() => this.send(this.state.param, this.state.subject, this.state.content, this.state.checked)} label="Message" color="success"> Envoyer</Button>
+                <Button onClick={() => this.send(this.state.param, this.state.subject, this.state.content, this.state.checked)} label="Message" color="success" disabled={this.state.disabledBtnSendMail}> Envoyer</Button>
 
 
                 <Button onClick={this.handleClose} color="primary">Annuler </Button>
@@ -746,11 +771,11 @@ class EventRow extends Component {
 
     else if (this.props.ComponentName == 'GestionHabilitation') {
       if (!event.code)
-        return <Alert color='danger' style={{ position: 'absolute', BackgroundColor: "danger", left: '40%', top: '60%', fontSize: '20px' }}>No results found</Alert>
+        return <Alert color='danger' style={{ position: 'absolute', BackgroundColor: "danger", left: '40%', top: '60%', fontSize: '20px' }}>Aucun résultat trouvé</Alert>
       else return (
         <tr className={" " + this.state.removed} >
           {this.props.details.map((el, key) =>
-            <td key={el.colonneDisplay} >{event[el.nomColonne] != null ? event[el.nomColonne] : 'NOT FOUND'} </td>
+            <td key={el.colonneDisplay} >{event[el.nomColonne] != null ? event[el.nomColonne] : ' '} </td>
           )
           }
           <td>
@@ -767,11 +792,11 @@ class EventRow extends Component {
 
     } else if (this.props.ComponentName == 'GestionStructure') {
       if (!event.libelleStructure)
-        return <Alert color='danger' style={{ position: 'absolute', BackgroundColor: "danger", left: '40%', top: '60%', fontSize: '20px' }}>No results found</Alert>
+        return <Alert color='danger' style={{ position: 'absolute', BackgroundColor: "danger", left: '40%', top: '60%', fontSize: '20px' }}>Aucune structure trouvée</Alert>
       else return (
         <tr className={" " + this.state.removed} >
           {this.props.details.map((el, key) =>
-            <td key={el.colonneDisplay} >{event[el.nomColonne] != null ? event[el.nomColonne] : 'NOT FOUND'} </td>
+            <td key={el.colonneDisplay} >{event[el.nomColonne] != null ? event[el.nomColonne] : ' '} </td>
           )
           }
           <td>
@@ -782,31 +807,93 @@ class EventRow extends Component {
       );
     }
 
+    else if (this.props.ComponentName == 'ListUser') {
+      if (!(event.appUserCode))
+        return <Alert color='danger' style={{ position: 'absolute', BackgroundColor: "danger", left: '40%', top: '60%', fontSize: '20px' }}>Aucun utilisateur trouvé</Alert>
+
+      else {
+        return (
+          <tr className={" " + this.state.removed} >
+            {this.props.details.map((el, key) => {
+              if (el.nomColonne == "appUserCode")
+                return (
+                  <td key={el.colonneDisplay}>{(event.appUserCode) ? event.appUserCode : " "} </td>);
+
+              else if (el.nomColonne == 'appUserFirstName')
+                return (
+                  <td key={el.colonneDisplay}>{(event.appUserFirstName) ? event.appUserFirstName : ' '}</td>);
+
+              else if (el.nomColonne == "appUserLastName")
+                return (
+                  <td key={el.colonneDisplay}> {(event.appUserLastName) ? event.appUserLastName : ' '}</td>);
+              else if (el.nomColonne == "appUserEmail")
+                return (
+                  <td key={el.colonneDisplay}> {(event.appUserEmail) ? event.appUserEmail : ' '}</td>);
+              else if (el.nomColonne == "appUserState")
+                return (
+
+                  <td key={el.colonneDisplay}>
+                    <Badge
+                      color={event.appUserState === "Actif" ? "success" : "danger"}
+                      pill>
+                      {(event.appUserState) === "Actif" ? "Activé" : 'Désactivé'}</Badge></td>
+
+
+                );
+            }
+            )}
+            <td>
+
+              <Button color="danger" id={event.id * 55555} className="mr-2" onClick={(e) => this.submitUserDelete(event.appUserCode, event.appUserState)} size="sm">
+                <i className="fa fa-trash"></i></Button>
+
+              <Link to={`/gestionProfil/${event.appUserId}`}  > <Button color="warning" size="sm" className="mr-2"><i className="fa fa-user-plus"></i></Button></Link>
+
+            </td>
+          </tr>
+        );
+      }
+    }
+
     else if (this.props.ComponentName == 'ActionLog') {
       if (!event.action && !event.structure && !event.user)
-        return <Alert color='danger' style={{ position: 'absolute', BackgroundColor: "danger", left: '40%', top: '60%', fontSize: '20px' }}>No results found</Alert>
+        return <Alert color='danger' style={{ position: 'absolute', BackgroundColor: "danger", left: '40%', top: '60%', fontSize: '20px' }}>Aucun historique</Alert>
       else return (
-        <tr className={" " + this.state.removed} >
-          {this.props.details.map((el, key) => {
-            if (el.nomColonne == "structure.libelleStructure")
-              return (
-                <td key={el.colonneDisplay}>{(event.structure && event.structure.libelleStructure) ? event.structure.libelleStructure : "NOT FOUND"} </td>);
 
-            else if (el.nomColonne == 'action.actionLib')
+        <tr className={" " + this.state.removed}>
+          {this.props.details.map((el, key) => {
+
+            if (el.nomColonne == 'action.actionLib')
               return (
-                <td key={el.colonneDisplay}>{(event.action && event.action.actionLib) ? event.action.actionLib : 'NOT FOUND'}</td>);
+                <td key={el.colonneDisplay}>{(event.action && event.action.actionLib) ? ((event.action.actionLib == 'Download') ? <IoMdDownload style={{ width: "20px", height: "20px", color: "#b2391f" }} /> : ((event.action.actionLib == 'View') ? <GrView style={{ width: "20px", height: "20px", color: "#df5059" }} /> : ((event.action.actionLib == 'SignIn') ? <FaUnlockKeyhole style={{ width: "18px", height: "18px", color: "#2b3472" }} /> : ((event.action.actionLib == 'DownloadCsv') ? <PiFileCsvDuotone style={{ width: "19px", height: "19px", color: "#337756" }} /> : '')))) : ' '}</td>);
 
             else if (el.nomColonne == "user.appUserCode")
               return (
-                <td key={el.colonneDisplay}> {(event.user && event.user.appUserCode) ? event.user.appUserCode : 'NOT FOUND'}</td>);
+                <td key={el.colonneDisplay}> {(event.user && event.user.appUserCode) ? event.user.appUserCode : ' '}</td>);
+
+
+
+            else if (el.nomColonne == "account")
+              return (
+                <td key={el.colonneDisplay}> {(event && event.account) ? event.account : ' '}</td>);
+
+            else if (el.nomColonne == "docType")
+              return (
+                <td key={el.colonneDisplay}> {(event && event.docType) ? event.docType : ' '}</td>);
+            else if (el.nomColonne == "agency")
+              return (
+                <td key={el.colonneDisplay}> {(event && event.agency) ? event.agency : ' '}</td>);
+            else if (el.nomColonne == 'date')
+              return (
+                <td key={el.colonneDisplay}>  {(event && event.actionDateD) ? event.actionDateD : ' '}</td>);
 
             else if (el.nomColonne == 'date')
               return (
-                <td key={el.colonneDisplay}> {new Date(event[el.nomColonne]).toLocaleDateString()}</td>);
+                <td key={el.colonneDisplay}>  {(event && event.actionDateH) ? event.actionDateH : ' '}</td>);
 
             else
               return (
-                <td key={el.colonneDisplay}> {event[el.nomColonne] ? event[el.nomColonne] : 'NOT FOUND'}</td>);
+                <td key={el.colonneDisplay}> {event[el.nomColonne] ? event[el.nomColonne] : ' '}</td>);
           }
           )}
           <td>
@@ -821,7 +908,7 @@ class EventRow extends Component {
 
 
     else if (this.props.ComponentName == 'GestionDelegation') {
-      console.log(event)
+
       if (!event.delegueNom && !event.dateFinDelegation && !event.dateDebDelegation)
         return <Alert color='danger' style={{ position: 'absolute', BackgroundColor: "danger", left: '40%', top: '60%', fontSize: '20px' }}>No results found</Alert>
       else return (
@@ -840,44 +927,27 @@ class EventRow extends Component {
       );
     }
 
-
     else if (this.props.ComponentName == 'GestionColonnes') {
       return (
         <tr className={" " + this.state.removed} >
           {this.props.details.map((el, key) => {
 
-            // return <td >{event[el.nomColonne]==='Actif' ? this.state = {check: true }  : this.state = {check: false }  }</td>; 
-
             if (el.nomColonne === 'nomVisibility' && event[el.nomColonne] === 'Actif') {
-              // this.state = {check: true} 
-              return <td> <Switch onChange={() => this.handleChange1(event.id, 'Inactif')} checked={true} id="normal-switch" /></td>
-              // onClick={() => this.submitDeleteDelegation(event.delegationId)}
+
+              return <td> <Switch onChange={() => this.handleChange1(event.id, 'Inactif')} checked={true} id="small-switch" /></td>
+
             }
 
             else if (el.nomColonne === 'nomVisibility' && event[el.nomColonne] === 'Inactif') {
-              // this.state = {check: true} 
-              return <td> <Switch onChange={() => this.handleChange1(event.id, 'Actif')} checked={false} id="normal-switch" /></td>
+
+              return <td> <Switch onChange={() => this.handleChange1(event.id, 'Actif')} checked={false} id="small-switch" /></td>
 
             }
-
-
             else
               return <td >{event[el.nomColonne]}</td>
-
-
-
           })
           }
-          {/*  <td>
-       <label htmlFor="normal-switch">
-        <Switch
-          onChange={this.handleChange1}
-          check={this.state.check}
-          id="normal-switch"
-        />
-      </label>
 
-          </td> */}
         </tr>
       );
 
@@ -899,7 +969,7 @@ class EventRow extends Component {
           }
           <td>
             <Link to={`/gestionProfil/${event.appUserId}`}  > <Button color="info" size="sm" ><i className="cui-user"></i></Button></Link>
-          </td>
+          </td> 2.
         </tr>
       );
     }
@@ -923,7 +993,7 @@ class EventRow extends Component {
     }
 
 
-    else if (this.props.ComponentName == 'AllProfils') {   //AllProfils  
+    else if (this.props.ComponentName == 'AllProfils') {
       return (
         <tr className={" " + this.state.removed} >
           {this.props.details.map((el, key) => {
@@ -972,7 +1042,7 @@ const mapStateToProps = state => ({
   roles: state.userInfo.user.roles
 })
 
-export default connect(mapStateToProps, { getDocsOfUser })(EventRow)
+export default connect(mapStateToProps, {})(EventRow)
 
 
 

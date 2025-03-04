@@ -1,10 +1,10 @@
-import {apiCall} from './api';
+import { apiCall } from './api';
 
 const URL = require('../Config/Config').Url;
 
 export function getProfiles(id) {
     return new Promise((resolve, reject) => {
-        return apiCall('get', URL+'/Rest/Api/profiles/findAllProfilsByUserId/'+id, null).then(
+        return apiCall('get', URL + '/Bridge/profiles/findAllProfilsByUserId/' + id, null).then(
             res => {
                 resolve(res);
             })
@@ -19,7 +19,7 @@ export function getProfiles(id) {
 
 export function getAllProfiles() {
     return new Promise((resolve, reject) => {
-        return apiCall('get', URL+'/Rest/Api/profiles/getAllProfiles', null).then(
+        return apiCall('get', URL + '/Bridge/profiles/getAllProfiles', null).then(
             res => {
                 resolve(res);
             })

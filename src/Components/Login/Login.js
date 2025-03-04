@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import { Button, Card, CardBody, CardGroup, Col, Container, Form, Input, InputGroup, InputGroupAddon, InputGroupText, Row } from 'reactstrap';
-import { Link, withRouter } from 'react-router-dom';
+import { Button, Card, CardBody,CardTitle, CardFooter ,CardGroup, Col, Container, Form, Input, InputGroup, InputGroupAddon, InputGroupText, Row } from 'reactstrap';
+import { withRouter } from 'react-router-dom';
 import Notifications, { notify } from 'react-notify-toast';
 import { authUser } from '../../Store/Actions/auth';
+import logoBiat from '../../../src/assets/img/logo_biat.png';
 
-
+import homeBiat from '../../../src/assets/img/home_br.png';
 import { connect } from 'react-redux';
 
 class Login extends Component {
@@ -21,7 +22,7 @@ class Login extends Component {
   componentDidMount() {
     // If logged in and user navigates to Login page, should redirect them to dashboard
     if (this.props.auth) {
-      this.props.history.push("/dashboard");
+      this.props.history.push("/Dashboard");
     }
     else {
       localStorage.clear()
@@ -32,7 +33,7 @@ class Login extends Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.auth) {
       notify.show("Authorized", "succes", 10000);
-      this.props.history.push("/dashboard"); // push user to dashboard when they login
+      this.props.history.push("/Dashboard"); // push user to dashboard when they login
     }
     else if (nextProps.errors) {
       this.setState({
@@ -51,9 +52,10 @@ class Login extends Component {
 
   handleSubmit = (e) => {
 
+
     e.preventDefault();
     let userData = {
-      userName: this.state.userName.toLowerCase(),
+      userName: this.state.userName,
       password: this.state.password
     }
     this.props.authUser(userData) // call auth user action in the store
@@ -79,7 +81,7 @@ class Login extends Component {
 
 
   render() {
-    const { userName, password, errors } = this.state;
+    const { userName, password } = this.state;
 
 
     return (
@@ -92,8 +94,11 @@ class Login extends Component {
                 <Card className="p-4">
                   <CardBody>
                     <Form onSubmit={this.handleSubmit} autoComplete='off' >
-                      <h1>Login</h1>
-                      <p className="text-muted">Bridge des Banques</p>
+                      <Row className="justify-content-center">
+                        <img src={logoBiat} width="35%" height="35%" alt="logo_biat" />
+                      </Row>
+
+                      <br />
                       <InputGroup className="mb-3">
 
                         <InputGroupAddon addonType="prepend">
@@ -105,7 +110,7 @@ class Login extends Component {
                           type="text"
                           name="userName"
                           id="matriculeInput"
-                          placeholder="Idéntifiant"
+                          placeholder="matricule"
                           onChange={this.handleChange}
                           value={userName}
                         />
@@ -126,24 +131,42 @@ class Login extends Component {
                         />
                       </InputGroup>
                       <Row>
-                        <Col xs="6">
-                          <Button className="px-4 login-bnt">Login</Button>
+                        <Col xs="12">
+                          <Row className="justify-content-center">
+                            <Button className="login-bnt" >Se connecter</Button>
+                          </Row>
                         </Col>
                       </Row>
                     </Form>
                   </CardBody>
                 </Card>
-                <Card style={{ width: '44%', backgroundColor: '#4668d1' }} className="text-white back-login py-5 d-md-down-none" >
+                <Card
+                  style={{
+                    width: '44%',
+                   
+                    backgroundImage: `url(${homeBiat})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                  
+                  }}
+                  className="text-white back-login py-5 d-md-down-none"
+                >
                   <CardBody className="text-center">
-                    <div>
-                      <h2>Actualités</h2>
-                      <h5>BRIDGE TIENT UNE COMMUNICATION FINANCIÈRE</h5>
-                      <p>IMEX TOUJOURS EN FORCE </p>
-                      <a href="http://www.imex.com.tn/" target="_blank">
-                        <Button color="#be0b0b" className="mt-3 login-2-bnt" active tabIndex={-1}>Visitez notre Site Web</Button>
-                      </ a>
-                    </div>
+                 
+                 
+                  
                   </CardBody>
+
+                  <CardFooter style={{ backgroundColor: 'transparent' , border: 'none'}} className="text-center"> <div>
+                  <h1>Bridge for banks</h1>
+                      
+                      <h5>IMEX - BIAT</h5>
+                      <br />
+                      <p>
+                        version :  4.0.0
+                      </p>
+                    </div></CardFooter>
                 </Card>
               </CardGroup>
             </Col>

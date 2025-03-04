@@ -16,6 +16,8 @@ import {
     CardHeader,
     Table,
 } from 'reactstrap';
+import SearchDate from './SearchBarDate';
+import { findDocByKeyWords } from '../../Services/docsServices';
 
 
 class SearchTable extends Component {
@@ -28,18 +30,34 @@ class SearchTable extends Component {
             filterText: '',
             details: props.details,
             ComponentName: props.ComponentName,
+            lastDate: '',
+            firstDate: '',
+            numberDocs: '',
+            spinnerLoadingBtn: false
 
         }
-
+        
 
 
 
     }
+
+    
     componentWillReceiveProps(next) {
+
+
         this.setState({
             data: next.data,
             currentData: next.data,
         })
+        try{
+            if(this.props.ComponentName == "AdvancedSearch"){
+                this.changeFields( next.data)
+            }
+        }catch(ex){
+
+        }
+
     }
 
 
@@ -47,11 +65,56 @@ class SearchTable extends Component {
         this.setState({ pageOfItems })
     }
 
+   
 
-    /*
-Search sur toute les colonnes
-*/
+    
+
+
+
+    searchDate = (param) => {
+
+        this.setState({
+            spinnerLoadingBtn: true
+        })
+
+        let request = {
+            codeAgency: '',
+            accountNumber: '',
+            chapitreComptable: '',
+            //accountKey: this.state.accountKey,
+            accountDev: '',
+            typeDocument: '',
+            dateComptable: '',
+            dateComptableStart: param.accountingDateDu,
+            dateComptableEnd: param.accountingDateAu,
+            clientCode: '',
+        }
+        console.log('request', request)
+        findDocByKeyWords(request)
+            .then((response) => {
+                console.log('response from api : ', response)
+                this.setState({
+                    currentData: (response.length > 0) ? response : [{}],
+                    data: response,
+                    spinnerLoadingBtn: false,
+
+
+                });
+                this.changeFields((response.length > 0) ? response : [{}])
+            })
+            .catch((error) => {
+                alert(error)
+                this.setState({
+                    spinnerLoadingBtn: false
+                });
+            })
+
+    }
+
+
+
     search = (e) => {
+
         let search = e.target.value.toLowerCase()
         let data = []
         if (search == "") {
@@ -61,8 +124,7 @@ Search sur toute les colonnes
             if (this.props.ComponentName == "SimpleSearch" || (this.props.ComponentName == "AdvancedSearch")) {
                 data = this.state.data.filter(el => (
                     el.typeDocument &&
-                    el.typeDocument.toString
-                    ().toLowerCase().includes(search))
+                    el.typeDocument.toString().toLowerCase().includes(search))
                     || el.accountNumber &&
                     el.accountNumber.toString().toLowerCase().includes(search)
                     || el.clientAgency &&
@@ -81,20 +143,16 @@ Search sur toute les colonnes
                     el.libelleStructure.toString().toLowerCase().includes(search)
                     || el.accountingsSection &&
                     el.accountingsSection.toString().toLowerCase().includes(search)
+                    || el.accountingDate &&
+                    el.accountingDate.toString().includes(search)
                     || el.editionTime &&
-                    el.editionTime.toString().toLowerCase().includes(search))
-                // || el.action.actionLib &&
-                // el.action.actionLib.toString().toLowerCase().includes(search)
-                // || el.structure.libelleStructure &&
-                // el.structure.libelleStructure.toString().toLowerCase().includes(search)
-                // || el.user.appUserCode &&
-                // el.user.appUserCode.toString().toLowerCase().includes(search)
-                // || el.docType &&
-                // el.docType.toString().toLowerCase().includes(search)
-                // || el.ip &&
-                // el.ip.toString().toLowerCase().includes(search)
-                // || el.date &&
-                // el.date.toString().toLowerCase().includes(search))
+                    el.editionTime.toString().toLowerCase().includes(search)
+                    || el.contentieux &&
+                    el.contentieux.toString().toLowerCase().includes(search)
+                        || el.folderNumber &&
+                    el.folderNumber.toString().toLowerCase().includes(search)
+                    )   
+
             }
 
             else if (this.props.ComponentName == "ActionLog") {
@@ -105,6 +163,8 @@ Search sur toute les colonnes
                 )
                 )
             }
+
+
 
             else if (this.props.ComponentName == "GestionHabilitation") {
                 data = this.state.data.filter(el => (
@@ -133,15 +193,26 @@ Search sur toute les colonnes
 
             else if (this.props.ComponentName == 'Profil') {
                 data = this.state.data.filter(el => (
-                       el.appUserFirstName && el.appUserFirstName.toString().toLowerCase().includes(search)
+                    el.appUserFirstName && el.appUserFirstName.toString().toLowerCase().includes(search)
                     || el.appUserLastName && el.appUserLastName.toString().toLowerCase().includes(search)
+                )
+                )
+            }
+
+            else if (this.props.ComponentName == 'ListUser') {
+                data = this.state.data.filter(el => (
+                    el.appUserFirstName && el.appUserFirstName.toString().toLowerCase().includes(search)
+                    || el.appUserLastName && el.appUserLastName.toString().toLowerCase().includes(search)
+                    || el.appUserCode && el.appUserCode.toString().toLowerCase().includes(search)
+                    || el.appUserEmail && el.appUserEmail.toString().toLowerCase().includes(search)
+                    || el.appUserState && el.appUserState.toString().toLowerCase().includes(search)
                 )
                 )
             }
 
             else if (this.props.ComponentName == 'GestionDelegation') {
                 data = this.state.data.filter(el => (
-                       el.dateDebDelegation && el.dateDebDelegation.toString().toLowerCase().includes(search)
+                    el.dateDebDelegation && el.dateDebDelegation.toString().toLowerCase().includes(search)
                     || el.dateFinDelegation && el.dateFinDelegation.toString().toLowerCase().includes(search)
                     || el.delegueNom && el.delegueNom.toString().toLowerCase().includes(search)
                 )
@@ -149,12 +220,17 @@ Search sur toute les colonnes
             }
 
 
-            
+
             else data = this.state.data
         }
         this.setState({
             currentData: (data.length > 0) ? data : [{}]
         })
+        this.changeFields((data.length > 0) ? data : [{}])
+    }
+
+    changeFields = (newData) => {
+        this.tableFilterNode.reset(newData, true)
     }
 
 
@@ -169,13 +245,13 @@ Search sur toute les colonnes
 
     render() {
 
-        if (this.state.data.msg != null) {
+        if (this.state.data.msg != null && this.props.ComponentName !== "SimpleSearch") {
             return <Alert color="danger">
                 {this.state.data.msg}</Alert>
         }
 
 
-        else if (!this.state.data.length > 0) return <div>Loading....</div>
+        else if (!this.state.data.length > 0 && this.props.ComponentName !== "SimpleSearch") return <div>Chargement...</div>
 
         else {
             const items = []
@@ -202,10 +278,15 @@ Search sur toute les colonnes
                 items.push(<th> Actions</th>)
             }
 
-            /*   else if (this.props.ComponentName == "GestionColonnes") {
-            
-              items.push(<th> Visibilité</th>)
-          }  */
+            else if (this.props.ComponentName == "ListUser") {
+                items.push(<th> Actions</th>)
+            }
+
+            else if (this.props.ComponentName == "ActionLog") {
+                items.push(<th> Détails</th>)
+            }
+
+
             else {
                 if (this.props.ComponentName == "GestionColonnes") {
 
@@ -228,6 +309,7 @@ Search sur toute les colonnes
                         matricule={this.props.matricule}
                         key={a.id}
                         idUser={this.props.idUser}
+                        index={index}
                     />
                 )
             )
@@ -245,27 +327,38 @@ Search sur toute les colonnes
                                     <i className={this.props.icon}></i>
                                     <strong style={{ display: 'flex', justifyContent: 'space-between' }}>
 
-                                        <div> {this.props.DisplayComponentName} </div>
-                                        <div>Total: {this.state.data.length} Ligne(s)</div>
+                                        <div> {this.props.DisplayComponentName} </div>{/* 
+                                        {this.state.ComponentName === "SimpleSearch" ? <div>Date comptable du {this.props.first} au {this.props.last}</div> : null}
+                                        {this.state.ComponentName === "SimpleSearch" ? <div>Nombre de documents {this.props.last} : {this.state.data.filter(el => el.accountingDate === this.props.last ).length} </div> : null}
+ */}
+                                        <div>Nombre total: {this.state.currentData.length} Ligne(s)</div>
                                     </strong>
+
+
                                 </CardHeader>
                                 <CardBody>
-                                    { (this.props.ComponentName==="GestionRight")
-                                    ||
-                                    (this.props.ComponentName==="AllProfils")
-                                    ||
-                                    (this.props.ComponentName==="GestionColonnes")
-                                    ||
-                                    (this.props.ComponentName==="GestionProfil")
-                                    ? null :
-                                    <Search search={this.search} ></Search>
+                                    {(this.props.ComponentName === "GestionRight")
+                                        ||
+                                        (this.props.ComponentName === "AllProfils")
+                                        ||
+                                        (this.props.ComponentName === "GestionColonnes")
+                                        ||
+                                        (this.props.ComponentName === "GestionProfil")
+                                        ? null :
+                                        <Search search={this.search} ></Search>
+                                    }
+                                    {(this.props.ComponentName === "SimpleSearch")
+                                        ?
+                                        <SearchDate clickToProps={this.searchDate} spinnerLoadingBtn={this.state.spinnerLoadingBtn} ></SearchDate> : null
                                     }
                                     {
                                         <Table hover bordered striped responsive size="sm">
                                             <thead>
                                                 <TableFilter
                                                     rows={this.state.data}
-                                                    onFilterUpdate={this._filterUpdated}>
+                                                    onFilterUpdate={this._filterUpdated}
+                                                    initialFilters={this.state.filterConfiguration}
+                                                    ref={node => { this.tableFilterNode = node }}>
                                                     {items}
                                                 </TableFilter>
                                             </thead>

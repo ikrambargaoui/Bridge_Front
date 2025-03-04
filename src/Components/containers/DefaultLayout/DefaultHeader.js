@@ -1,17 +1,14 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Badge, DropdownItem, DropdownMenu, DropdownToggle, Nav, NavItem, NavLink } from 'reactstrap';
+import { DropdownItem, DropdownMenu, DropdownToggle, Nav } from 'reactstrap';
 import PropTypes from 'prop-types';
-import { Redirect } from 'react-router-dom';
 import { connect } from "react-redux";
-import { apiCall } from '../../../Services/api'
 
 import { logout } from '../../../Store/Actions/auth'
-import { AppAsideToggler, AppHeaderDropdown, AppNavbarBrand, AppSidebarToggler } from '@coreui/react';
-import logo from '../../../assets/img/brand/logo_bridge.png'
-import sygnet from '../../../assets/img/brand/sygnet.png'
-
-import {getMoreInformationAboutUser} from '../../../Services/userService'
+import { AppHeaderDropdown, AppNavbarBrand, AppSidebarToggler } from '@coreui/react';
+import logoMinimized from '../../../assets/img/logo_biat.jpg'
+import logoFull from '../../../assets/img/logo.png'
+import { getMoreInformationAboutUser } from '../../../Services/userService'
 
 
 const propTypes = {
@@ -41,19 +38,19 @@ class DefaultHeader extends Component {
     const { children, ...attributes } = this.props;
 
     return (
-      <React.Fragment><AppSidebarToggler className="d-lg-none" display="md" mobile />
+      <React.Fragment>
 
-        <AppSidebarToggler className="d-lg-none" display="md" mobile />
+        <AppSidebarToggler className="d-lg-none" display="md" mobile ></AppSidebarToggler>
 
         <AppNavbarBrand
-          // full={{ src: logo, width: 89, height: 25, alt: 'CoreUI Logo' }}
+         
 
-          full={{ src: logo, width: 100, height: 30, alt: 'UIB Logo' }}
-          // minimized={{ src: sygnet, width: 30, height: 30, alt: 'CoreUI Logo' }}
+          full={{ src: logoFull, width: 150, height: 45, alt: 'BRIDGE LogoFull' }}
+       
 
-          minimized={{ src: sygnet, width: 50, height: 50, alt: 'UIB Logo' }}
-        />
-        <AppSidebarToggler className="d-md-down-none" display="lg" />
+          minimized={{ src: logoMinimized, width: 40, height: 40, alt: 'BRIDGE LogoMin' }}
+          style={{ marginTop: "0.5%" }}
+          className="d-none d-lg-block" />
 
         <Nav className="d-md-down-none" >
           {/*<NavItem className="px-3">
@@ -86,23 +83,26 @@ class DefaultHeader extends Component {
           */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 
+
+            |
             <div style={{ color: '#be0b0b', display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0px 20px' }}>
               {/* <div style={{ color: 'black' }}>
                 Utilisateur: </div> */}
               {this.props.user.user.lastName} {this.props.user.user.firstName}
             </div>
-|
+            |
             <div style={{ color: '#be0b0b', display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0px 20px' }}>
               {/* <div style={{ color: 'black' }}>
                 Agence:</div> */}
               {this.state.dataAgence.libelleStructure}
             </div>
-|
+            |
             <div style={{ color: '#be0b0b', display: 'flex', flexDirection: 'column', alignItems: 'center', margin: '0px 20px' }}>
               {/* <div style={{ color: 'black' }}>
                 code Structure:</div> */}
               {this.state.dataAgence.codeStructure}
             </div>
+
 
           </div>
 

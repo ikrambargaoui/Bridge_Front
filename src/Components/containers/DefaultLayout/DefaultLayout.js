@@ -21,7 +21,7 @@ import {
 
 // routes config
 import routes from '../../../routes';
-
+import { } from './styles.css';
 
 const DefaultAside = React.lazy(() => import('./DefaultAside'));
 const DefaultFooter = React.lazy(() => import('./DefaultFooter'));
@@ -38,7 +38,7 @@ class DefaultLayout extends Component {
     }
   }
 
-  loading = () => <div className="animated fadeIn pt-1 text-center">Loading...</div>
+  loading = () => <div className="animated fadeIn pt-1 text-center">Chargement...</div>
 
   signOut(e) {
     e.preventDefault()
@@ -51,6 +51,8 @@ class DefaultLayout extends Component {
     this.props.getUser()
   }
 
+
+  /* STATISQUE MENU*/
   componentWillReceiveProps(next) {
     if (next._user !== this.props._user) {
       if (localStorage.menu) {
@@ -58,31 +60,30 @@ class DefaultLayout extends Component {
         this.setState({ navigation: { items: _menu }, ready: true })
       }
       else if (next._user) {
-        let MenuByids = []
-        let MenuByidsUnique = []
+        let menuFinal = []
+        let roleAdmin = false
         for (let i = 0; i < next._user.user.roles.length; i++) {
-          getMenu(next._user.user.roles[i].profile_id).then(data => { MenuByids.push(...data) })
-            .catch(err => console.log(err))
+          if (next._user.user.roles[i].profile_id === 2) {
+            roleAdmin = true;
+          }
         }
+        if (roleAdmin) {
+                  menuFinal = [{ "id": 0, "name": "Dashboard", "url": "/dashboard", "icon": "icon-speedometer", "children": null }, { "id": 0, "name": "Documents", "url": "/", "icon": "icon-folder", "children": [{ "id": 0, "name": "Recherche Ciblée", "url": "/RechercheCiblee", "icon": "icon-magnifier", "children": null }] }, { "id": 0, "name": "Délégations", "url": "/", "icon": "icon-folder", "children": [{ "id": 0, "name": "Déléguer docs", "url": "/delegation", "icon": "icon-magnifier", "children": null }, { "id": 0, "name": "Mes délégations", "url": "/MesDelegations", "icon": "icon-docs", "children": null }] }, { "id": 0, "name": "Administration", "url": "/", "icon": "icon-settings", "children": [{ "id": 0, "name": "Gestion des utilisateurs", "url": "/GestionUtilisateurAgence", "icon": "icon-wrench", "children": null }, { "id": 0, "name": "Gestion des Structures", "url": "/GestionStructure", "icon": "icon-magnifier", "children": null }, { "id": 0, "name": "Journal d'activités", "url": "/actionlog", "icon": "icon-magnifier", "children": null }] }]
 
-        setTimeout(() => {
-          console.log('here: ', MenuByids);
-          MenuByids.map(el =>
-            (MenuByidsUnique.filter(e => (el.name === e.name)).length === 0) ? MenuByidsUnique.push(el) : ''
-          )
-          this.setState({ navigation: { items: MenuByidsUnique }, ready: true })
-          localStorage.setItem("Menu", JSON.stringify(MenuByidsUnique))
-          let menu = localStorage.getItem("Menu")
-          console.log("menu unique: ", menu)
+        } else {
+
+          menuFinal = [{ "id": 0, "name": "Dashboard", "url": "/dashboard", "icon": "icon-speedometer", "children": null }, { "id": 0, "name": "Documents", "url": "/", "icon": "icon-folder", "children": [{ "id": 0, "name": "Recherche Ciblée", "url": "/RechercheCiblee", "icon": "icon-magnifier", "children": null }] }, { "id": 0, "name": "Délégation", "url": "/", "icon": "icon-folder", "children": [{ "id": 0, "name": "Déléguer docs", "url": "/delegation", "icon": "icon-magnifier", "children": null }, { "id": 0, "name": "Mes délégations", "url": "/MesDelegations", "icon": "icon-docs", "children": null }] }]
+       
         }
-          , 1500)
+        this.setState({ navigation: { items: menuFinal }, ready: true })
       }
     }
   }
 
 
+
   render() {
-    if ((!this.state.navigation)) { return <div className="animated fadeIn pt-1 text-center">Loading...</div> }
+    if ((!this.state.navigation)) { return <div className="animated fadeIn pt-1 text-center">Chargement...</div> }
 
     else {
       return (
@@ -93,18 +94,18 @@ class DefaultLayout extends Component {
             </Suspense>
           </AppHeader>
           <div className="app-body">
-            <AppSidebar fixed display="lg">
+            <AppSidebar fixed display="lg"  className="custom-sidebar" style={{backgroundColor:'#3d3d52'}}>
               <AppSidebarHeader />
               <AppSidebarForm />
               <Suspense>
-                <AppSidebarNav navConfig={this.state.navigation} {...this.props} />
+                <AppSidebarNav className="custom-sidebar" navConfig={this.state.navigation} {...this.props} />
               </Suspense>
               <AppSidebarFooter />
               <AppSidebarMinimizer />
             </AppSidebar>
             <main className="main">
               <AppBreadcrumb appRoutes={routes} />
-              <Container fluid>
+              <Container fluid >
                 <Suspense fallback={this.loading()}>
                   <Switch>
                     {routes.map((route, idx) => {

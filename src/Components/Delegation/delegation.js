@@ -4,7 +4,7 @@ import { } from '../Common/pagination.scss'
 import axios from 'axios';
 
 import { getUser } from '../../Store/Actions/userActions'
-import { getDocsOfUser } from '../../Store/Actions/GetDocs'
+
 import { getColumns } from '../../Store/Actions/columnConfig'
 import { } from '../Tables/example.scss';
 import { } from '../Tables/lib/styles.css';
@@ -98,19 +98,19 @@ export default class delegation extends Component {
                     "id": 1,
                     "nomColonne": "dateDebDelegation",
                     "nomVisibility": "Actif",
-                    "colonneDisplay": "Date de début de délégation"
+                    "colonneDisplay": "Date début"
                 },
                 {
                     "id": 2,
                     "nomColonne": "dateFinDelegation",
                     "nomVisibility": "Actif",
-                    "colonneDisplay": "Date de fin de délégation"
+                    "colonneDisplay": "Date fin"
                 },
                 {
                     "id": 3,
                     "nomColonne": "delegueNom",
                     "nomVisibility": "Actif",
-                    "colonneDisplay": "Delegué"
+                    "colonneDisplay": "Délégué"
                 }
             ];
 
@@ -120,7 +120,7 @@ export default class delegation extends Component {
                     <Card className="main-card mb-3">
                         <CardBody>
                             <GestionDelegation />
-                            <span>Loading...</span>
+                            <span>Chargement...</span>
                         </CardBody>
                     </Card>
                 </Col>

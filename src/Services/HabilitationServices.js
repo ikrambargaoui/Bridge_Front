@@ -6,7 +6,7 @@ const URL = require('../Config/Config').Url;
 export function FindALLEtatHabilitationByCuti(param) {
 
     return new Promise((resolve, reject) => {
-        return apiCall("get", URL + '/Rest/Api/Habilitations/GetALLEtatHabilitationByCuti/' + param, null).then(
+        return apiCall("get", URL + '/Bridge/Habilitations/GetALLEtatHabilitationByCuti/' + param, null).then(
             (res) => {
                 resolve(res);
             })
@@ -21,7 +21,7 @@ export function FindALLEtatHabilitationByCuti(param) {
 export function postEtatHabilitation(data) {
 
     return new Promise((resolve, reject) => {
-        return apiCall("post", URL + '/Rest/Api/Habilitations/postEtatHabilitation',  data ).then(
+        return apiCall("post", URL + '/Bridge/Habilitations/postEtatHabilitation', data).then(
             (res) => {
                 resolve(res);
                 console.log(res)
@@ -43,7 +43,7 @@ export function deleteRowHabilitation(matricule, param) {
         'Access-Control-Allow-Origin': '*'
     }
     return new Promise((resolve, reject) => {
-        return axios.get(URL + '/Rest/Api/Habilitations/deleteEtatHabilitation/' + matricule + '/' + param, { headers }).then(
+        return axios.get(URL + '/Bridge/Habilitations/deleteEtatHabilitation/' + matricule + '/' + param, { headers }).then(
             (res) => {
                 resolve(res);
             })

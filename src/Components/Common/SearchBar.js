@@ -14,7 +14,7 @@ import {
 export default class Search extends Component {
     render() {
         return (
-            <Form action="" method="post" className="form-horizontal">
+            <Form action=""  className="form-horizontal">
             <FormGroup row>
                 <Col md="12">
                     <InputGroup>

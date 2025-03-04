@@ -4,15 +4,46 @@ const URL = require('../Config/Config').Url;
 export function getUserInformation(param) {
 
     return new Promise((resolve, reject) => {
-        return apiCall("get", URL + '/Rest/Api/User/GetUserInformationByCuti/' + param, null).then(
+        return apiCall("get", URL + '/Bridge/User/GetUserInformationByCuti/' + param, null).then(
             (res) => {
+                console.log('result get user', res)
                 resolve(res);
             })
             .catch(err => {
                 reject(err);
             })
     })
-} 
+}
+
+
+export function changeStateUser(id, etat) {
+
+    return new Promise((resolve, reject) => {
+        return apiCall("get", URL + '/Bridge/appuser/updateUserStatus/' + id + '/' + etat, null).then(
+            (res) => {
+                console.log('ress', res)
+                resolve(res);
+            })
+            .catch(err => {
+                reject(err);
+            })
+    })
+}
+
+
+export function findUserInformationByCode(param) {
+
+    return new Promise((resolve, reject) => {
+        return apiCall("get", URL + '/Bridge/appuser/findUserByCode/' + param, null).then(
+            (res) => {
+                console.log('ress', res)
+                resolve(res);
+            })
+            .catch(err => {
+                reject(err);
+            })
+    })
+}
 
 
 
@@ -21,7 +52,7 @@ export function getUserInformation(param) {
 export function getAllUsers() {
 
     return new Promise((resolve, reject) => {
-        return apiCall("get", URL + '/Rest/Api/appuser/findAllUsers', null).then(
+        return apiCall("get", URL + '/Bridge/appuser/findAllUsers', null).then(
             (res) => {
                 resolve(res);
             })
@@ -29,12 +60,57 @@ export function getAllUsers() {
                 reject(err);
             })
     })
-} 
+}
 
 
 export function getMoreInformationAboutUser() {
     return new Promise((resolve, reject) => {
-        return apiCall('get',  URL + '/Rest/Api/Structure/findStructureByUser',null).then(
+        return apiCall('get', URL + '/Bridge/Structure/findStructureByUser', null).then(
+            (res) => {
+                resolve(res);
+            })
+            .catch(err => {
+                reject(err);
+            })
+    })
+}
+
+export function addUser(data) {
+
+    return new Promise((resolve, reject) => {
+        //return apiCall("post", URL + '/Bridge/Documents/findDocumentByKeyWordsTEST', data).then(
+        return apiCall("post", URL + '/Bridge/appuser/addUser', data).then(
+            (res) => {
+                resolve(res);
+            })
+            .catch(err => {
+                reject(err);
+            })
+    })
+}
+
+export function updatePassword(data) {
+
+    return new Promise((resolve, reject) => {
+        //return apiCall("post", URL + '/Bridge/Documents/findDocumentByKeyWordsTEST', data).then(
+        return apiCall("post", URL + '/Bridge/appuser/updatePassword', data).then(
+            (res) => {
+                resolve(res);
+            })
+            .catch(err => {
+                reject(err);
+            })
+    })
+}
+
+
+export function updateUserByAdmin(data) {
+
+
+
+    return new Promise((resolve, reject) => {
+        //return apiCall("post", URL + '/Bridge/Documents/findDocumentByKeyWordsTEST', data).then(
+        return apiCall("post", URL + '/Bridge/appuser/updateUserByAdmin', data).then(
             (res) => {
                 resolve(res);
             })
@@ -43,5 +119,3 @@ export function getMoreInformationAboutUser() {
             })
     })
 } 
-
-

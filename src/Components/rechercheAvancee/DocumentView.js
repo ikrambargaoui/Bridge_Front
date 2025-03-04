@@ -75,7 +75,7 @@ export default class DocumentView extends Component {
     const { pageNumber, numPages } = this.state;
 
     if (!this.state.ready) {
-      return <div>Loading...</div>
+      return <div>Chargement...</div>
     }
     else {
       const filePdf = (localStorage.getItem('pdfFile'));

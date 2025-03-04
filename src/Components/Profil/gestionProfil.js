@@ -4,7 +4,7 @@ import { } from '../Common/pagination.scss'
 import axios from 'axios';
 
 import { getUser } from '../../Store/Actions/userActions'
-import { getDocsOfUser } from '../../Store/Actions/GetDocs'
+
 import { getColumns } from '../../Store/Actions/columnConfig'
 import { } from '../Tables/example.scss';
 import { } from '../Tables/lib/styles.css';
@@ -32,11 +32,11 @@ export default class gestionprofil extends Component {
             details: null,
             cols: null,
             matricule: '',
-           
+
             idUser: this.props.location.pathname.slice(15),
         }
-       
-console.log(this.state.idUser);
+
+        console.log(this.state.idUser);
 
     }
 
@@ -45,9 +45,9 @@ console.log(this.state.idUser);
 
         getProfiles(this.state.idUser).then(res => {
             this.setState({ data: res });
-            console.log("le resultat est " + res)
+
         }).catch(err => console.log('hr:', err))
-    
+
     }
 
 
@@ -56,47 +56,47 @@ console.log(this.state.idUser);
 
     render() {
         const name = "GestionProfil";
-        const displayName="Gestion des profils";
-        const icon="fa fa-th-list";
+        const displayName = "Gestion des profils";
+        const icon = "fa fa-th-list";
         const details =
-        [
-
-            
-           /*  {
-                "id": 1,
-                "nomColonne": "profileId",
-                "nomVisibility": "Actif",
-                "colonneDisplay": "Identifiant du profile"
-            }, */
-            {
-                "id": 2,
-                "nomColonne": "profileName",
-                "nomVisibility": "Actif",
-                "colonneDisplay": "Nom du profile"
-            },
-            {
-                "id": 3,
-                "nomColonne": "profileDescription",
-                "nomVisibility": "Actif",
-                "colonneDisplay": "Description du profile"
-            },
+            [
 
 
-            /* {
-                "id": 3,
-                "nomColonne": "affecte",
-                "nomVisibility": "Actif",
-                "colonneDisplay": "Affctation"
-            } */
-        ];
+                /*  {
+                     "id": 1,
+                     "nomColonne": "profileId",
+                     "nomVisibility": "Actif",
+                     "colonneDisplay": "Identifiant du profile"
+                 }, */
+                {
+                    "id": 2,
+                    "nomColonne": "profileName",
+                    "nomVisibility": "Actif",
+                    "colonneDisplay": "Nom du profile"
+                },
+                {
+                    "id": 3,
+                    "nomColonne": "profileDescription",
+                    "nomVisibility": "Actif",
+                    "colonneDisplay": "Description du profile"
+                },
 
 
-       
-return (
+                /* {
+                    "id": 3,
+                    "nomColonne": "affecte",
+                    "nomVisibility": "Actif",
+                    "colonneDisplay": "Affctation"
+                } */
+            ];
+
+
+
+        return (
             <Col md="12">
                 <Card className="main-card mb-3">
                     <CardBody>
-                    <SearchTable
+                        <SearchTable
                             details={details}
                             data={this.state.data}
                             ComponentName={name}
@@ -104,7 +104,7 @@ return (
                             DisplayComponentName={displayName}
                             icon={icon}
                         />
-                       
+
                     </CardBody>
                 </Card>
             </Col>

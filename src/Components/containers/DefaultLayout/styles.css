@@ -1,0 +1,43 @@
+
+/* Ensure the icons inside the sidebar have the correct color */
+.app-sidebar .nav-link .nav-icon {
+  color: #f28529 !important; 
+}
+
+/* Ensure hover on the icon inside the sidebar uses orange */
+.app-sidebar .nav-link:hover .nav-icon {
+  color: #f28529 !important; 
+}
+
+/* Ensure the active state uses orange */
+.app-sidebar .nav-link.active {
+  background-color: #f28529 !important;
+  color: white !important;
+}
+
+/* Ensure the text color on hover changes to orange */
+.app-sidebar .nav-link:hover {
+  color: #f28529 !important;
+}
+
+/* Custom sidebar styles */
+.custom-sidebar .nav-link .nav-icon {
+  color: #f28529 !important;
+}
+
+.custom-sidebar .nav-link:hover .nav-icon {
+  color: #f28529 !important;
+}
+
+/* Force orange color on hover for all menu links */
+.app-sidebar .nav-link:hover, 
+.custom-sidebar .nav-link:hover {
+  color: #f28529 !important; /* Ensure this is orange */
+  background-color: transparent !important; /* Prevent any unwanted background color */
+}
+
+/* Make sure no other background color is applied on hover */
+.app-sidebar .nav-link:hover, 
+.custom-sidebar .nav-link:hover {
+  background-color: transparent !important; /* Disable unwanted background hover effect */
+}

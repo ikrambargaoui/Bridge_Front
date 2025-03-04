@@ -119,7 +119,7 @@ class ActionLogDetail extends Component {
         <Button color="info" size="sm" onClick={() => this.handleClickOpen()}><i className="cui-info"   ></i></Button>
         <Dialog onClose={this.handleClose} aria-labelledby="customized-dialog-title" open={this.state.open}>
           <DialogTitle id="customized-dialog-title" onClose={this.handleClose}>
-            Plus de détails sur l'action effectuée...
+          <h6>Plus de détails</h6>
           </DialogTitle>
           <DialogContent>
             <div className="container">
@@ -127,30 +127,25 @@ class ActionLogDetail extends Component {
                 <div className="panel-heading">
                 </div>
                 <card>
-                  <h5 className="panel-title">
-                    <h5 className="panel-title">
-                      {this.props.action.user&&this.props.action.user.appUserCode != null ? 'Matricule: ' + this.props.action.user.appUserCode : ''} </h5>
-                    <h5 className="panel-title">
-                      {this.props.action.user&&this.props.action.user.appUserFirstName != null ? 'Nom et Prénom :  ' + this.props.action.user.appUserLastName + '  ' + this.props.action.user.appUserFirstName : ''} </h5>
+                  
+                    <h6 className="panel-title">
+                      {this.props.action.user && this.props.action.user.appUserCode != null ? 'Matricule: ' + this.props.action.user.appUserCode : ''} </h6>
+                    <h6 className="panel-title">
+                      {this.props.action.user && this.props.action.user.appUserFirstName != null ? 'Nom et Prénom :  ' + this.props.action.user.appUserFirstName+' '+this.props.action.user.appUserLastName : ''} </h6>
 
-                    <h5 className="panel-title">
-                      {this.props.action.structure && this.props.action.structure.libelleStructure != null ? 'Entité : ' + this.props.action.structure.codeStructure + '  ' + this.props.action.structure.libelleStructure : ''} </h5>
-                    {this.props.action.user && this.props.action.user.actionLib != null ? 'Action effectuée: ' + this.props.action.action.actionLib : ''} </h5>
-                  <h5 className="panel-title">
-                    {this.props.action.date != null ? 'Date: ' + this.props.action.date : ''} </h5>
-
-                  <h5 className="panel-title">
-                    {this.props.action.docType != null ? 'Document  : ' + this.props.action.docType : ''} </h5>
+                    <h6 className="panel-title">
+                      {this.props.action.structure && this.props.action.structure.libelleStructure != null ? 'Entité : ' + this.props.action.structure.libelleStructure +' ('+ this.props.action.structure.codeStructure +')' : ''} </h6>
+                      <h6 className="panel-title">
+                      {this.props.action.ip && this.props.action.ip != null ? 'Adresse IP :  ' + this.props.action.ip : ''} </h6>
 
                 </card>
-
               </div>
             </div>
 
 
           </DialogContent>
           <DialogActions>
-            {/*  <Button label="Message" color="success"> Envoyer </Button> */}
+           
             <Button onClick={this.handleClose} color="primary">Fermer </Button>
           </DialogActions>
         </Dialog>

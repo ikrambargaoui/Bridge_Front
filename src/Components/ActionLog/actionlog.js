@@ -10,6 +10,8 @@ import {
     CardBody,
 
 } from 'reactstrap';
+import { GrFormView } from "react-icons/gr";
+import { FaDownload } from "react-icons/fa6";
 
 
 export default class GestionHabilitation extends Component {
@@ -28,7 +30,7 @@ export default class GestionHabilitation extends Component {
         getActions().then((response) => {
             this.setState({
                 data: response
-            },console.log('action log : ',response));
+            }, console.log('action log : ', response));
         })
             .catch((error) => {
                 alert(error)
@@ -36,38 +38,63 @@ export default class GestionHabilitation extends Component {
 
     }
 
-
     render() {
         const name = "ActionLog";
-        const displayName = "Action Log";
+        const displayName = "Journal d'activités";
         const icon = "fa fa-th-list";
         const details =
             [
+
                 {
                     "id": 1,
-                    "nomColonne": "user.appUserCode",
-                    "nomVisibility": "Actif",
-                    "colonneDisplay": "User"
-                }, 
-                {
-                    "id": 2,
                     "nomColonne": "action.actionLib",
                     "nomVisibility": "Actif",
-                    "colonneDisplay": "Action Effectuée"
-                },
-                {
-                    "id": 3,
-                    "nomColonne": "structure.libelleStructure",
-                    "nomVisibility": "Actif",
-                    "colonneDisplay": "Structure"
+                    "colonneDisplay": "Action"
                 }
                 ,
                 {
+                    "id": 2,
+                    "nomColonne": "user.appUserCode",
+                    "nomVisibility": "Actif",
+                    "colonneDisplay": "User"
+                }
+                ,
+
+                {
+                    "id": 3,
+                    "nomColonne": "account",
+                    "nomVisibility": "Actif",
+                    "colonneDisplay": "Compte"
+                },
+
+
+                {
                     "id": 4,
-                    "nomColonne": "date",
+                    "nomColonne": "docType",
+                    "nomVisibility": "Actif",
+                    "colonneDisplay": "Type"
+                },
+                {
+                    "id": 5,
+                    "nomColonne": "agency",
+                    "nomVisibility": "Actif",
+                    "colonneDisplay": "Agence"
+                }
+                ,
+                {
+                    "id": 6,
+                    "nomColonne": "actionDateD",
                     "nomVisibility": "Actif",
                     "colonneDisplay": "Date"
                 }
+                ,
+                {
+                    "id": 7,
+                    "nomColonne": "actionDateH",
+                    "nomVisibility": "Actif",
+                    "colonneDisplay": "Heure"
+                }
+
             ];
 
         return (

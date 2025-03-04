@@ -98,7 +98,7 @@ class DialogValid extends Component {
                 <Button color="info" size="sm" onClick={this.props.open}><i className="cui-info"   ></i></Button>
                 <Dialog onClose={this.handleClose} aria-labelledby="customized-dialog-title" open={this.props.open}>
                     <DialogTitle id="customized-dialog-title" onClose={this.props.close}>
-                        Description du document...
+                    <h6>  Description du document</h6>
                     </DialogTitle>
                     <DialogContent>
                         <div className="container">

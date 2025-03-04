@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { } from '../../scss/example.scss';
 import { } from '../../scss/lib/styles.css';
-
+import { Autocomplete } from "@autocomplete/material-ui";
 import { getUserInformation } from '../../Services/userService';
 
 import {
@@ -20,6 +20,8 @@ import {
   CardHeader,
   Alert
 } from 'reactstrap';
+
+
 
 
 export default class UserInformation extends Component {
@@ -69,6 +71,7 @@ export default class UserInformation extends Component {
         } */
 
   getUserInformationByCuti = () => {
+    console.log('hellllllo',this.state.matricule)
     if (this.state.matricule) {
       getUserInformation(this.state.matricule)
         .then(res => {
@@ -98,6 +101,22 @@ export default class UserInformation extends Component {
 
     }
   }
+
+  setMatricule = (q) => {
+   if (q !== undefined && q !== '' && q !== null){
+    this.setState({
+      matricule : q
+    })
+
+   }
+  };
+
+  getOptions = (q) => {
+    let query = new RegExp(q);
+    return this.props.users.filter(o => query.test(o));
+  };
+
+
   render() {
     return (
       <Row>
@@ -114,9 +133,16 @@ export default class UserInformation extends Component {
 
                     <Row>
                       <InputGroup   >
-                        <Input type="text" id="name" name="matricule" placeholder="Entrer le matricule " required onChange={this.onChange} />
+                        <Autocomplete
+                          onChange={(q) => this.setMatricule(q)} 
+                          selectOnBlur
+                          requireMatch
+                          getOptions={this.getOptions}
+                          style = {{minWidth : '800px',marginTop : '10px'}}
+                          placeholder="Rechercher par matricule utilisateur ..."
+                          name="matricule"  />
                         <InputGroupAddon addonType="append">
-                          <Button color="info" className="mt-1" onClick={this.getUserInformationByCuti} >Rechercher</Button>
+                          <Button  style = {{marginLeft : "10%"}} color="info" className="mt-1" onClick={this.getUserInformationByCuti} >Rechercher</Button>
 
                         </InputGroupAddon>
 
@@ -132,7 +158,7 @@ export default class UserInformation extends Component {
 
                 </Row>
 
-                <Row hidden={this.state.visibile1}  >
+               {/* <Row hidden={this.state.visibile1}  >
 
                   <Col xs="sm-6">
                     <FormGroup>
@@ -155,7 +181,7 @@ export default class UserInformation extends Component {
                     </FormGroup>
 
                   </Col>
-                </Row>
+                </Row> */}
 
               </Form>
             </CardBody>

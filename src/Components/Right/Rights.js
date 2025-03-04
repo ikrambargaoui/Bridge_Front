@@ -69,7 +69,7 @@ class Rights extends Component {
                      <Card className="main-card mb-3">
                          <CardBody>
                             
-                             <span>Loading...</span>
+                             <span>Chargement...</span>
                          </CardBody>
                      </Card>
                  </Col>

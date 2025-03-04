@@ -28,21 +28,10 @@ class Configcol extends Component {
             cols: null,
             matricule: '',
 
-           // checked: false
 
         }
 
-       
-       // this.handleChange = this.handleChange.bind(this);
-    
-
     }
-
-
-
-   /*  handleChange(checked) {
-        this.setState({ checked });
-      } */
 
       
     componentDidMount() {
@@ -79,7 +68,7 @@ class Configcol extends Component {
                     <Card className="main-card mb-3">
                         <CardBody>
 
-                            <span>Loading...</span>
+                            <span>Chargement...</span>
                         </CardBody>
                     </Card>
                 </Col>
@@ -98,14 +87,7 @@ class Configcol extends Component {
                                 DisplayComponentName={displayName}
                             />
                         </CardBody>
-                        {/* <label htmlFor="normal-switch">
-        <span>Switch with default style</span>
-        <Switch
-          onChange={this.handleChange}
-          checked={this.state.checked}
-          id="normal-switch"
-        />
-      </label> */}
+                       
                     </Card>
                 }
             </Col>

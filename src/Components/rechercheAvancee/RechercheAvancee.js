@@ -1,10 +1,7 @@
-
-
 import React, { Component, Fragment } from 'react';
-import axios from 'axios';
 import Dropdown from 'react-dropdown'
 import { connect } from 'react-redux'
-import { findDocByKeyWords } from '../../Services/docsServices'
+import { findDocByKeyWords, findTypes } from '../../Services/docsServices'
 import { findDevise } from '../../Services/docsServices'
 
 
@@ -24,10 +21,11 @@ import {
   Label,
   Row,
   Button,
+  Spinner
 } from 'reactstrap';
 import '../Common/pagination.scss'
 import { getUser } from '../../Store/Actions/userActions'
-import { getDocsOfUser } from '../../Store/Actions/GetDocs'
+
 import { getColumns } from '../../Store/Actions/columnConfig'
 import { } from '../Tables/example.scss';
 import { } from '../Tables/lib/styles.css';
@@ -37,29 +35,37 @@ import SearchTable from '../Common/table'
 class RechercheAvancee extends Component {
   constructor(props) {
     super(props);
+    this.dateInputRefStart = React.createRef();
     this.state = {
       filterText: '',
       documents: [],
       visibile1: true,
       visibile2: true,
-
       codeAgency: '',
       accountNumber: '',
       accountKey: '',
       accountDev: '',
       accountingDate: '',
+      dateComptableEnd: '',
+      dateComptableStart: '',
       clientCode: '',
+      refOp: '',
       typeDocument: '',
       devises: [],
       dev: [],
-      message: ''
+      types: [],
+      devTypes: [],
+      message: '',
+      loadingBtn: false,
+      loadingDisplayDev: true,
+      loadingDisplayType: true
     };
 
     this.onChange = this.onChange.bind(this);
 
   }
   componentDidMount() {
-    this.props.getDocsOfUser()
+ 
     this.props.getColumns()
   }
   componentWillMount() {
@@ -68,16 +74,41 @@ class RechercheAvancee extends Component {
     findDevise()
       .then((response) => {
 
+        response.unshift('Toutes les devises')
+
         this.setState({
           devises: response
 
         });
         for (var i in this.state.devises) {
-          this.setState({ dev: this.state.dev.concat([{ label: this.state.devises[i], value: parseInt(i) + 1 }]) });
+          this.setState({ dev: this.state.dev.concat([{ label: this.state.devises[i], value: parseInt(i) + 1 }]), loadingDisplayDev: false });
         }
       })
       .catch((error) => {
         alert(error)
+        this.setState({
+          loadingDisplayDev: false
+
+        });
+      })
+
+    findTypes()
+      .then((response) => {
+        response.unshift({ id: 1000, typeDocument: "Tous les types", codeTypeDocument: "" })
+        this.setState({
+          types: response
+
+        });
+        for (var i in this.state.types) {
+          this.setState({ devTypes: this.state.devTypes.concat([{ label: this.state.types[i].typeDocument, value: this.state.types[i].codeTypeDocument }]), loadingDisplayType: false });
+        }
+      })
+      .catch((error) => {
+        alert(error)
+        this.setState({
+          loadingDisplayType: false
+
+        });
       })
   }
 
@@ -85,21 +116,23 @@ class RechercheAvancee extends Component {
     this.setState({ [e.target.name]: e.target.value });
   }
 
+  resetDate() {
+    this.setState({
+      dateComptableStart: null
+    })
+  }
+  handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      this.getDocumentByKeyWords();
+    }
+  };
+
 
   getDocumentByKeyWords = () => {
 
-
-    if (this.state.accountNumber == '' && this.state.codeAgency == '' && this.state.accountKey === '') {
+    if (this.state.dateComptableStart === '' || this.state.dateComptableEnd === '' || this.state.typeDocument === '') {
       this.setState({
-        message: "Vous devez spécifier le numéro de compte et le code agence ou la Référence de l'opération!",
-        visibile2: false,
-        visibile1: true,
-        accountDev: '',
-      });
-    }
-    else if (this.state.accountNumber !== '' && this.state.codeAgency == '' && this.state.accountKey === '') {
-      this.setState({
-        message: "Vous devez spécifier le numéro de compte et le code agence",
+        message: "Champs obligatoires manquants",
         visibile2: false,
         visibile1: true,
         accountDev: '',
@@ -107,95 +140,75 @@ class RechercheAvancee extends Component {
     }
 
     else {
+      this.setState({
+        loadingBtn: true
+      })
       let request = {
         codeAgency: this.state.codeAgency,
         accountNumber: this.state.accountNumber,
         chapitreComptable: this.state.accountKey,
-        //accountKey: this.state.accountKey,
         accountDev: this.state.accountDev,
         typeDocument: this.state.typeDocument,
-        accountingDate: this.state.accountingDate,
+        dateComptable: this.state.accountingDate,
+        dateComptableStart: this.state.dateComptableStart,
+        dateComptableEnd: this.state.dateComptableEnd,
         clientCode: this.state.clientCode,
+        refOp: this.state.refOp
       }
-      console.log('request', request)
       findDocByKeyWords(request)
-        .then((response) => {
-
-          this.setState({
+      .then((response) => {
+        this.setState({
             documents: response,
             visibile1: false,
             visibile2: true,
             accountDev: '',
+            loadingBtn: false
+        });
+    })
+    .catch((error) => {
+        if (error.response) {
+           
+            if (error.response.status === 400) {
+            
+                
+                this.setState({
+                    message: error.response.data.msg,
+                    visibile2: false,
+                    visibile1: true,
+                    loadingBtn: false
+                });
+            } else if (error.response.status === 503) {
+               
+                this.setState({
+                    message: "Le service est actuellement indisponible. Veuillez réessayer plus tard.",
+                    visibile2: false,
+                    visibile1: true,
+                    loadingBtn: false
+                });
+            } else {
+              
+                this.setState({
+                    message: "Une erreur est survenue : " + error.response.status,
+                    visibile2: false,
+                    visibile1: true,
+                    loadingBtn: false
+                });
+            }
+        } else {
+           
+            this.setState({
+                message: "Une erreur est survenue lors de la communication avec le serveur.",
+                loadingBtn: false
+            });
+        }
+    });
+}
+};
 
-          });
-        })
-        .catch((error) => {
-          alert(error)
-        })
-    }
 
-  }
-
-
-
-  // getDocumentByKeyWords = () => {
-
-
-  //   if (this.state.typeDocument === '' && this.state.accountingDate === '' && this.state.clientCode === '' && this.state.accountNumber === '' && this.state.codeAgency === ''  ) {
-  //     this.setState({
-  //       message: "Vous devez spécifier le numéro de compte et le code agence ou le type document ou la date comptable ou le client code !",
-  //       visibile2: false,
-  //       visibile1: true,
-  //       accountDev: '',
-  //     });
-  //   }
-  //   else if (this.state.accountNumber !== '' && this.state.codeAgency == '' && this.state.typeDocument == '' && this.state.accountingDate == '' && this.state.clientCode == '') {
-  //     this.setState({
-  //       message: "Vous devez spécifier le code agence ou le type document ou la date comptable ou le client code !",
-  //       visibile2: false,
-  //       visibile1: true,
-  //       accountDev: '',
-  //     });
-  //   }
-  //   else if (this.state.accountNumber == '' && this.state.codeAgency != '' && this.state.typeDocument == '' && this.state.accountingDate == '' && this.state.clientCode == '') {
-  //     this.setState({
-  //       message: "Vous devez spécifier le numéro de compte  ou le type document ou la date comptable ou le client code !",
-  //       visibile2: false,
-  //       visibile1: true,
-  //       accountDev: '',
-  //     });
-  //   }
-
-  //   else if ((this.state.accountNumber !== '' && this.state.codeAgency !== '')|| (this.state.typeDocument !== '' || this.state.accountingDate !== '' || this.state.clientCode !== '') ){
-  //  findDocByKeyWords({
-  //   codeAgency: this.state.codeAgency,
-  //   accountNumber: this.state.accountNumber,
-  //   // Chapitrecomptable: this.state.accountKey,
-  //   accountKey: this.state.accountKey,
-  //   accountDev: this.state.accountDev,
-  //   typeDocument: this.state.typeDocument,
-  //   accountingDate: this.state.accountingDate,
-  //   clientCode: this.state.clientCode,
-  // })
-  //   .then((response) => {
-
-  //     this.setState({
-  //       documents: response,
-  //       visibile1: false,
-  //       visibile2: true,
-  //       accountDev: '',
-
-  //     });
-  //   })
-  //   .catch((error) => {
-  //     alert(error)
-  //   })
-  //   } 
-
-  // }
 
   render() {
-    if (!this.state.dev) return <div>Loading......</div>
+    if (this.state.loadingDisplayDev || this.state.loadingDisplayType) return <div>Chargement...</div>
     else {
       const name = "AdvancedSearch";
       const displayName = "Consulter vos documents...";
@@ -214,47 +227,69 @@ class RechercheAvancee extends Component {
                 <CardBody>
                   <FormGroup col="true">
                     <Row>
-                      <Col xs="md-3">
+                      <Col xs="md-4">
                         <FormGroup>
-                          <Label htmlFor="name">Numéro de Compte  <span className="ml-auto font-weight-bold"></span> <span style={{ color: 'red' }} >*</span></Label>
-                          <Input type="text" name="accountNumber" id="accountNumber" onChange={this.onChange} placeholder="Numéro de Compte" required />
+                          <Label htmlFor="name">Numéro de compte  <span className="ml-auto font-weight-bold"></span> </Label>
+                          <Input type="text" name="accountNumber" id="accountNumber" onChange={this.onChange} onKeyPress={this.handleKeyPress} placeholder="Numéro de Compte" />
                         </FormGroup>
                       </Col>
-                      <Col xs="md-3">
+                      <Col xs="md-4">
                         <FormGroup>
-                          <Label htmlFor="name">Code Agence  <span className="ml-auto font-weight-bold"></span><span style={{ color: 'red' }} >*</span></Label>
-                          <Input type="number" name="codeAgency" id="codeAgency" onChange={this.onChange} placeholder="Code Agence" required />
+                          <Label htmlFor="name">Référence opération</Label>
+                          <Input type="text" name="refOp" id="refOp" onChange={this.onChange} onKeyPress={this.handleKeyPress} placeholder="Référence opération" />
                         </FormGroup>
-                      </Col>   <Col xs="md-3">
+                      </Col>
+                      <Col xs="md-4">
                         <FormGroup>
-                          <Label htmlFor="name">Référence Opération </Label>
-                          <Input type="text" name="accountKey" id="accountKey" onChange={this.onChange} placeholder="Référence Opération" />
+                          <Label htmlFor="name">Code agence  <span className="ml-auto font-weight-bold"></span></Label>
+                          <Input type="text" name="codeAgency" id="codeAgency" onChange={this.onChange} onKeyPress={this.handleKeyPress} placeholder="Code Agence" />
                         </FormGroup>
-                      </Col>   <Col xs="md-3">
+                      </Col>
+
+
+                      <Col xs="md-4">
                         <FormGroup>
-                          <Label htmlFor="name">Devise Compte  </Label>
-                          {/* <Input  type="text" name="accountDev" id="accountDev" onChange={this.onChange}       placeholder="Devise Compte"     /> */}
-                          <Dropdown options={this.state.dev} onChange={e => this.setState({ accountDev: e.label })} value={this.state.dev[19]} placeholder="Select an option" />
+                          <Label htmlFor="name">Type document  </Label><span style={{ color: 'red' }} > *</span>
+                          <Dropdown options={this.state.devTypes} onChange={e => this.setState({ typeDocument: e.value })} value={this.state.devTypes[0]} />
 
                         </FormGroup>
                       </Col>
-                      <Col xs="md-3">
+                      <Col xs="md-4">
                         <FormGroup>
-                          <Label htmlFor="name">Type document </Label>
-                          <Input type="text" name="typeDocument" id="typeDocument" onChange={this.onChange} placeholder="Type document" />
+                          <Label htmlFor="name">Code client</Label>
+                          <Input type="text" name="clientCode" id="clientCode" onChange={this.onChange} onKeyPress={this.handleKeyPress} placeholder="Code Client" />
                         </FormGroup>
-                      </Col><Col xs="md-3">
+                      </Col>
+
+
+                      <Col xs="md-4">
                         <FormGroup>
-                          <Label htmlFor="name">Date Comptable </Label>
-                          <Input type="date" name="accountingDate" id="accountingDate" onChange={this.onChange} placeholder="Date Comptable" />
-                        </FormGroup>
-                      </Col><Col xs="md-3">
-                        <FormGroup>
-                          <Label htmlFor="name">Fiche Client</Label>
-                          <Input type="text" name="clientCode" id="clientCode" onChange={this.onChange} placeholder="Fiche Client" />
+                          <Label htmlFor="name">Devise compte  </Label>
+
+                          <Dropdown options={this.state.dev} onChange={e => this.setState({ accountDev: e.label })} value={this.state.dev[0]} />
+
                         </FormGroup>
                       </Col>
                     </Row>
+                    <fieldset style={{ border: "1px solid #E4E5E6", padding: "0.5% 0.5% 0.5% 1%" }}>
+                      <legend style={{ color: "black", fontSize: "14px", marginLeft: "10%", paddingLeft: "2%", width: "7%", fontWeight: "bold" }}>Date</legend>
+                      <Row>
+
+                        <Col xs="md-6">
+                          <FormGroup>
+                            <Label htmlFor="name">Du <span style={{ color: 'red' }} >*</span> </Label>
+                            <Input type="date" name="dateComptableStart" id="dateComptableStart" onChange={this.onChange} value={this.state.dateComptableStart} />
+                          </FormGroup>
+                        </Col>
+                        <Col xs="md-6">
+                          <FormGroup>
+                            <Label htmlFor="name">Au <span style={{ color: 'red' }} >*</span></Label>
+                            <Input type="date" name="dateComptableEnd" id="dateComptableEnd" onChange={this.onChange} value={this.state.dateComptableEnd} />
+                          </FormGroup>
+                        </Col>
+
+                      </Row>
+                    </fieldset>
 
                   </FormGroup>
 
@@ -263,7 +298,7 @@ class RechercheAvancee extends Component {
                 </CardBody>
                 <CardFooter>
 
-                  <Button size="sm" color="success" onClick={this.getDocumentByKeyWords} className="float-right"><i className="fa fa-search"></i> Recherche</Button>
+                  <Button size="sm" color="success" onClick={this.getDocumentByKeyWords} className="float-right" disabled={this.state.loadingBtn}>{this.state.loadingBtn ? <Spinner size="sm" /> : <i className="fa fa-search"></i>} Recherche</Button>
                 </CardFooter>
 
               </Card>
@@ -275,6 +310,8 @@ class RechercheAvancee extends Component {
             <Card className="main-card mb-3">
               <CardBody>
                 <SearchTable
+
+
                   details={this.props.cols.cols}
                   data={this.state.documents}
                   ComponentName={name}
@@ -287,7 +324,6 @@ class RechercheAvancee extends Component {
           <Col md="12" hidden={this.state.visibile2}>
 
             <Alert color="danger">
-              <h4 className="alert-heading">Champ Obligatoire!</h4>
 
               {this.state.message}
             </Alert>
@@ -307,7 +343,7 @@ const mapStateToProps = state => ({
   cols: state.cols
 })
 
-export default connect(mapStateToProps, { getUser, getDocsOfUser, getColumns })(RechercheAvancee)
+export default connect(mapStateToProps, { getUser, getColumns })(RechercheAvancee)
 
 
 

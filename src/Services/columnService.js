@@ -1,10 +1,10 @@
-import {apiCall} from './api';
+import { apiCall } from './api';
 
 const URL = require('../Config/Config').Url;
 
 export function getCol() {
     return new Promise((resolve, reject) => {
-        return apiCall('get', URL+'/Rest/Api/Colonnes/Allcolumns', null).then(
+        return apiCall('get', URL + '/Bridge/Colonnes/Allcolumns', null).then(
             res => {
                 resolve(res);
             })
@@ -17,9 +17,9 @@ export function getCol() {
 
 
 
-export function updateCol(id,vis) {
+export function updateCol(id, vis) {
     return new Promise((resolve, reject) => {
-        return apiCall('post', URL+'/Rest/Api/Colonnes/UpdateCol/'+id+'/'+vis, null).then(
+        return apiCall('post', URL + '/Bridge/Colonnes/UpdateCol/' + id + '/' + vis, null).then(
             res => {
                 resolve(res);
             })

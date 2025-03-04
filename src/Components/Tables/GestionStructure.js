@@ -18,7 +18,7 @@ import {
   Label,
   Row
 } from 'reactstrap';
-
+const URL = require('../../Config/Config').Url;
 
 class EventRow extends React.Component {
 
@@ -31,12 +31,13 @@ class EventRow extends React.Component {
 
 
   postMethod(param) {
+    const token = localStorage.getItem('jwtToken');
     var headers = {
       'Content-Type': 'application/json',
-      'Authorization': "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiaDAwMzQ0NSIsImlhdCI6MTU0OTM3MTE5NSwiY29kZSI6ImJoMDAzNDQ1Iiwicm9sZXMiOlt7ImF1dGhvcml0eSI6IlJPTEVfVVNFUiJ9LHsiYXV0aG9yaXR5IjoiUk9MRV9CVVNTSU5FU1NfVU5JVF9NQU5BR0VSIn1dfQ.TsaMOct4GApSlg7bEfTFQCGQG273P8g55Lfk2LJa1CI",
+      'Authorization': "Bearer " + token,
       'Access-Control-Allow-Origin': '*'
     }
-    axios.post('http://135.125.203.95:1920/Rest/Api/Structure/addStructureUser', {
+    axios.post(URL + '/Bridge/Structure/addStructureUser', {
       idUser: this.props.matricule,
       idStructure: param
     }, { headers: headers })
@@ -49,13 +50,13 @@ class EventRow extends React.Component {
       });
   }
   deleteRow(param) {
-
+    const token = localStorage.getItem('jwtToken');
     var headers = {
       'Content-Type': 'application/json',
-      'Authorization': "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiaDAwMzQ0NSIsImlhdCI6MTU0OTM3MTE5NSwiY29kZSI6ImJoMDAzNDQ1Iiwicm9sZXMiOlt7ImF1dGhvcml0eSI6IlJPTEVfVVNFUiJ9LHsiYXV0aG9yaXR5IjoiUk9MRV9CVVNTSU5FU1NfVU5JVF9NQU5BR0VSIn1dfQ.TsaMOct4GApSlg7bEfTFQCGQG273P8g55Lfk2LJa1CI",
+      'Authorization': "Bearer " + token,
       'Access-Control-Allow-Origin': '*'
     }
-    axios.get('http://135.125.203.95:1920/Rest/Api/Structure/deleteStructure/' + param + '/' + this.props.matricule, { headers: headers })
+    axios.get(URL + '/Bridge/Structure/deleteStructure/' + param + '/' + this.props.matricule, { headers: headers })
       .then((response) => {
 
         console.log(param);
@@ -121,10 +122,10 @@ class EventTable extends React.Component {
         <thead>
           <th key="libelleStructure" filterkey="libelleStructure" className="cell">
             Libellé Structure
-                  </th>
+          </th>
           <th className="cell">
             Action
-                  </th>
+          </th>
         </thead>
         <tbody>
           {rows}
@@ -195,14 +196,14 @@ export default class GestionStructure extends React.Component {
 
 
   getClientCredential() {
+    const token = localStorage.getItem('jwtToken');
     if (this.state.matricule) {
       this.state.total = [];
       var headers = {
         'Content-Type': 'application/json',
-        'Authorization': "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiaDAwMzQ0NSIsImlhdCI6MTU0OTM3MTE5NSwiY29kZSI6ImJoMDAzNDQ1Iiwicm9sZXMiOlt7ImF1dGhvcml0eSI6IlJPTEVfVVNFUiJ9LHsiYXV0aG9yaXR5IjoiUk9MRV9CVVNTSU5FU1NfVU5JVF9NQU5BR0VSIn1dfQ.TsaMOct4GApSlg7bEfTFQCGQG273P8g55Lfk2LJa1CI"
-
+        'Authorization': "Bearer " + token
       }
-      axios.get('http://135.125.203.95:1920/Rest/Api/User/GetUserInformationByCuti/' + this.state.matricule, { headers: headers })
+      axios.get(URL + '/Bridge/User/GetUserInformationByCuti/' + this.state.matricule, { headers: headers })
         .then((response) => {
           this.setState({
             nom: response.data[0].lib
@@ -213,70 +214,70 @@ export default class GestionStructure extends React.Component {
           alert(error)
         })
       this.state.visibile = false;
-      axios.get('http://135.125.203.95:1920/Rest/Api/Structure/findAllStructureByUserCode/' + this.state.matricule, { headers: headers })
-      .then((response) => {
+      axios.get(URL + '/Bridge/Structure/findAllStructureByUserCode/' + this.state.matricule, { headers: headers })
+        .then((response) => {
 
-        this.setState({
-          allstructures: response.data
+          this.setState({
+            allstructures: response.data
 
-        });
+          });
 
-        // for (var i in this.state.structures) {
+          // for (var i in this.state.structures) {
 
-        //   this.setState({ total: this.state.total.concat([{ id: this.state.structures[i].id, codeStructure: this.state.structures[i].codeStructure, libelleStructure: this.state.structures[i].libelleStructure, associee: 'O' }]) });
+          //   this.setState({ total: this.state.total.concat([{ id: this.state.structures[i].id, codeStructure: this.state.structures[i].codeStructure, libelleStructure: this.state.structures[i].libelleStructure, associee: 'O' }]) });
 
-        // }
-        // else{
-        //   this.setState({ total: this.state.total.concat([{ id: this.state.structures[i].id, codeStructure: this.state.structures[i].codeStructure, libelleStructure: this.state.structures[i].libelleStructure, associee: 'O' }]) });
+          // }
+          // else{
+          //   this.setState({ total: this.state.total.concat([{ id: this.state.structures[i].id, codeStructure: this.state.structures[i].codeStructure, libelleStructure: this.state.structures[i].libelleStructure, associee: 'O' }]) });
 
-        // }
+          // }
 
 
 
-      })
-      .catch((error) => {
-        alert(error)
-      })
-      axios.get('http://135.125.203.95:1920/Rest/Api/Structure/findStructure', { headers: headers })
+        })
+        .catch((error) => {
+          alert(error)
+        })
+      axios.get(URL + '/Bridge/Structure/findStructure', { headers: headers })
         .then((response) => {
 
           this.setState({
             totalstructures: response.data
 
           });
-/* 
-          for (var i in this.state.totalstructures) {
-            if (this.state.total[i].libelleStructure.toString().toLowerCase().indexOf(this.state.totalstructures[i].libelleStructure.toString().toLowerCase()) === -1) {
-
-              this.setState({ total: this.state.total.concat([{ id: this.state.totalstructures[i].id, codeStructure: this.state.totalstructures[i].codeStructure, libelleStructure: this.state.totalstructures[i].libelleStructure, associee: 'N' }]) });
-
-            }
-
-
-          } */
-
-        /*     this.state.totalstructures.forEach((event) => {
-            if (this.state.total.indexOf(event) === -1)  {
-             this.setState({ total: this.state.total.concat([{ id: event.id, codeStructure: event.codeStructure, libelleStructure: event.libelleStructure, associee: 'N' }]) });
-            } */
+          /* 
+                    for (var i in this.state.totalstructures) {
+                      if (this.state.total[i].libelleStructure.toString().toLowerCase().indexOf(this.state.totalstructures[i].libelleStructure.toString().toLowerCase()) === -1) {
           
-        //     this.state.totalstructures.forEach((event) => {
-        //       this.state.total.forEach((ev) => {
+                        this.setState({ total: this.state.total.concat([{ id: this.state.totalstructures[i].id, codeStructure: this.state.totalstructures[i].codeStructure, libelleStructure: this.state.totalstructures[i].libelleStructure, associee: 'N' }]) });
+          
+                      }
+          
+          
+                    } */
 
-        //     if (ev.codeStructure.indexOf(event.codeStructure) === -1)  {
-        //      this.setState({ total: this.state.total.concat([{ id: event.id, codeStructure: event.codeStructure, libelleStructure: event.libelleStructure, associee: 'N' }]) });
-        //     }
-         
-         
-        //   })
-        // }
-        //   )
+          /*     this.state.totalstructures.forEach((event) => {
+              if (this.state.total.indexOf(event) === -1)  {
+               this.setState({ total: this.state.total.concat([{ id: event.id, codeStructure: event.codeStructure, libelleStructure: event.libelleStructure, associee: 'N' }]) });
+              } */
+
+          //     this.state.totalstructures.forEach((event) => {
+          //       this.state.total.forEach((ev) => {
+
+          //     if (ev.codeStructure.indexOf(event.codeStructure) === -1)  {
+          //      this.setState({ total: this.state.total.concat([{ id: event.id, codeStructure: event.codeStructure, libelleStructure: event.libelleStructure, associee: 'N' }]) });
+          //     }
+
+
+          //   })
+          // }
+          //   )
 
         })
         .catch((error) => {
           alert(error)
         })
-    
+
 
 
     }

@@ -9,7 +9,8 @@ export default (state = DEFAULT_STATE, action) => {
     switch (action.type) {
         case SET_CURRENT_USER:
             return {
-                isAuthenticated: !isEmpty(action.accessToken)
+              isAuthenticated: !isEmpty(action.accessToken)
+
             }
 
         default:

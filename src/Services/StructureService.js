@@ -5,7 +5,7 @@ const URL = require('../Config/Config').Url;
 export function findAllStructureByCuti(param) {
 
     return new Promise((resolve, reject) => {
-        return apiCall("get", URL + '/Rest/Api/Structure/findAllStructureByUserCode/'+param, null).then(
+        return apiCall("get", URL + '/Bridge/Structure/findAllStructureByUserCode/' + param, null).then(
             (res) => {
                 resolve(res);
                 console.log(res)
@@ -17,13 +17,13 @@ export function findAllStructureByCuti(param) {
 }
 
 
-export function postStructure(data) {
+export function findAllStructure() {
 
     return new Promise((resolve, reject) => {
-        return apiCall("post", URL + '/Rest/Api/Structure/addStructureUser', data).then(
+        return apiCall("get", URL + '/Bridge/Structure/findAllStructures', null).then(
             (res) => {
                 resolve(res);
-                console.log('post: ',res)
+                console.log('test iooo', res)
             })
             .catch(err => {
                 reject(err);
@@ -33,17 +33,34 @@ export function postStructure(data) {
 
 
 
-export function deleteStructure( param,matricule) {
+
+export function postStructure(data) {
 
     return new Promise((resolve, reject) => {
-        return apiCall("get", URL + '/Rest/Api/Structure/deleteStructure/' + param + '/' + matricule, null).then(
+        return apiCall("post", URL + '/Bridge/Structure/addStructureUser', data).then(
             (res) => {
                 resolve(res);
-                console.log('delete:',res)
+                console.log('post: ', res)
             })
             .catch(err => {
                 reject(err);
             })
     })
-} 
+}
+
+
+
+export function deleteStructure(param, matricule) {
+
+    return new Promise((resolve, reject) => {
+        return apiCall("get", URL + '/Bridge/Structure/deleteStructure/' + param + '/' + matricule, null).then(
+            (res) => {
+                resolve(res);
+                console.log('delete:', res)
+            })
+            .catch(err => {
+                reject(err);
+            })
+    })
+}
 

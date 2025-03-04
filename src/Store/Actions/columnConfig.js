@@ -11,7 +11,7 @@ export const getColumns = () => dispatch => {
         'Access-Control-Allow-Origin': '*'
     }
 
-    axios.get(URL + '/Rest/Api/Colonnes/colonne/Actif', { headers: headers })
+    axios.get(URL + '/Bridge/Colonnes/colonne/Actif', { headers: headers })
         .then(response => {
             dispatch({
                 type: GET_COLUMN_CONFIG,

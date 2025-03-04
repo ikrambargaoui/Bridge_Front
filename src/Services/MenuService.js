@@ -4,7 +4,7 @@ const URL = require('../Config/Config').Url;
 export function getMenu(param) {
 
     return new Promise((resolve, reject) => {
-        return apiCall("get", URL + '/Rest/Api/Menu/getMenuByProfile/' + param, null).then(
+        return apiCall("get", URL + '/Bridge/Menu/getMenuByProfile/' + param, null).then(
             (res) => {
                 resolve(res);
             })

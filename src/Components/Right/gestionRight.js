@@ -4,7 +4,7 @@ import { } from '../Common/pagination.scss'
 import axios from 'axios';
 
 import { getUser } from '../../Store/Actions/userActions'
-import { getDocsOfUser } from '../../Store/Actions/GetDocs'
+
 import { getColumns } from '../../Store/Actions/columnConfig'
 import { } from '../Tables/example.scss';
 import { } from '../Tables/lib/styles.css';
