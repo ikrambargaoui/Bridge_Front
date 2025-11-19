@@ -18,6 +18,7 @@ import {
 } from 'reactstrap';
 import SearchDate from './SearchBarDate';
 import { findDocByKeyWords } from '../../Services/docsServices';
+import { DownloadAPdf } from '../../Services/docsServices';
 
 
 class SearchTable extends Component {
@@ -33,28 +34,29 @@ class SearchTable extends Component {
             lastDate: '',
             firstDate: '',
             numberDocs: '',
-            spinnerLoadingBtn: false
-
+            spinnerLoadingBtn: false,
+            selectedDocs: []
         }
-        
+
 
 
 
     }
 
-    
+
     componentWillReceiveProps(next) {
 
 
         this.setState({
             data: next.data,
             currentData: next.data,
+            selectedDocs: []
         })
-        try{
-            if(this.props.ComponentName == "AdvancedSearch"){
-                this.changeFields( next.data)
+        try {
+            if (this.props.ComponentName == "AdvancedSearch") {
+                this.changeFields(next.data)
             }
-        }catch(ex){
+        } catch (ex) {
 
         }
 
@@ -65,9 +67,9 @@ class SearchTable extends Component {
         this.setState({ pageOfItems })
     }
 
-   
 
-    
+
+
 
 
 
@@ -111,7 +113,38 @@ class SearchTable extends Component {
 
     }
 
+    download = (id, name) => {
+        console.log('download  ', id, name)
+        DownloadAPdf(id)
+            .then((response) => {
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', name);
+                document.body.appendChild(link);
+                link.click();
+            })
+            .catch(err => console.log(err))
+    }
 
+    downloadAllSelected = () => {
+        this.state.selectedDocs.forEach(doc => {
+            const fileName = doc.fileNameOut || `document_${doc.key}.pdf`;
+            this.download(doc.key, fileName);
+        });
+    };
+
+    handleToggleDoc = (doc) => {
+        this.setState((prevState) => {
+            const alreadySelected = prevState.selectedDocs.find(d => d.key === doc.key);
+            const updated = alreadySelected
+                ? prevState.selectedDocs.filter(d => d.key !== doc.key)
+                : [...prevState.selectedDocs, { key: doc.key, fileNameOut: doc.fileNameOut }];
+
+            console.log("Docs sélectionnés :", updated);
+            return { selectedDocs: updated };
+        });
+    };
 
     search = (e) => {
 
@@ -149,9 +182,9 @@ class SearchTable extends Component {
                     el.editionTime.toString().toLowerCase().includes(search)
                     || el.contentieux &&
                     el.contentieux.toString().toLowerCase().includes(search)
-                        || el.folderNumber &&
+                    || el.folderNumber &&
                     el.folderNumber.toString().toLowerCase().includes(search)
-                    )   
+                )
 
             }
 
@@ -245,6 +278,7 @@ class SearchTable extends Component {
 
     render() {
 
+
         if (this.state.data.msg != null && this.props.ComponentName !== "SimpleSearch") {
             return <Alert color="danger">
                 {this.state.data.msg}</Alert>
@@ -255,6 +289,10 @@ class SearchTable extends Component {
 
         else {
             const items = []
+
+            if (this.props.ComponentName == "AdvancedSearch") {
+                items.push(<th />)
+            }
             for (var i = 0; i < this.props.details.length; i++) {
                 if (this.props.details[i].nomColonne === 'accountingDate') {
                     let key = (this.props.details[i].nomColonne);
@@ -310,6 +348,8 @@ class SearchTable extends Component {
                         key={a.id}
                         idUser={this.props.idUser}
                         index={index}
+                        selectedDocs={this.state.selectedDocs}
+                        onToggleDoc={this.handleToggleDoc}
                     />
                 )
             )
@@ -351,7 +391,20 @@ class SearchTable extends Component {
                                         ?
                                         <SearchDate clickToProps={this.searchDate} spinnerLoadingBtn={this.state.spinnerLoadingBtn} ></SearchDate> : null
                                     }
+
+                                    {this.state.selectedDocs.length > 0 && (
+                                        <div style={{ marginBottom: '10px' }}>
+                                            <button
+                                                className="btn btn-primary"
+                                                onClick={this.downloadAllSelected}
+                                            >
+                                                Télécharger tout ({this.state.selectedDocs.length})
+                                            </button>
+                                        </div>
+                                    )}
                                     {
+
+
                                         <Table hover bordered striped responsive size="sm">
                                             <thead>
                                                 <TableFilter

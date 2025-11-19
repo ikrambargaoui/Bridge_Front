@@ -3,27 +3,21 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router-dom';
 import { confirmAlert } from 'react-confirm-alert';
 import { IoMdDownload } from "react-icons/io";
-import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
+import 'react-confirm-alert/src/react-confirm-alert.css'; 
 import { } from '../Tables/example.scss';
 import { } from '../Tables/lib/styles.css';
 import Switch from "react-switch";
 import { GrView } from "react-icons/gr";
 import { FaUnlockKeyhole } from "react-icons/fa6";
-//import Popup from "reactjs-popup";
 import { PiFileCsvDuotone } from "react-icons/pi";
-
-
 import {
   Button,
   Card,
   CardBody,
   CardHeader,
   Alert,
-  view,
-  Badge
-
+  Badge,
 } from 'reactstrap';
-/*Dialog*/
 import Dialog from '@material-ui/core/Dialog';
 import MuiDialogTitle from '@material-ui/core/DialogTitle';
 import MuiDialogContent from '@material-ui/core/DialogContent';
@@ -34,16 +28,12 @@ import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import { Editor } from 'primereact/editor';
 import { withStyles } from '@material-ui/core/styles';
-/*Dialog*/
-
-// checkboxlist
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import ListItemText from '@material-ui/core/ListItemText';
 import Checkbox from '@material-ui/core/Checkbox';
 import CommentIcon from '@material-ui/icons/Comment';
-
 import { getMailsList, sendMail } from '../../Services/mailServices';
 import { removeADocument } from '../../Services/docsServices';
 import { postEtatHabilitation } from '../../Services/HabilitationServices';
@@ -51,22 +41,18 @@ import { deleteRowHabilitation } from '../../Services/HabilitationServices';
 import { postStructure } from '../../Services/StructureService';
 import { deleteStructure } from '../../Services/StructureService';
 import { DownloadAPdf, DownloadACsv } from '../../Services/docsServices';
-
 import DialogInfo from '../SimpleSearch/DialogInfo'
-
 import { DeleteDelegation } from '../../Services/delegationService';
-
 import { DeleteRole } from '../../Services/roleService';
 import { AddRole } from '../../Services/roleService';
 import { deleteRightFromProfile } from '../../Services/rightService';
 import { AddRightToProfile } from '../../Services/rightService';
 import { updateCol } from '../../Services/columnService';
-import { CardActionArea } from '@material-ui/core';
 import ActionLogDetail from '../ActionLog/ActionLogDetail'
 import { changeStateUser } from '../../Services/userService';
-import { getCol } from '../../Services/columnService';
 
-/****************************for mail*/
+
+
 const DialogTitle = withStyles(theme => ({
   root: {
     borderBottom: `1px solid ${theme.palette.divider}`,
@@ -116,7 +102,6 @@ class EventRow extends Component {
     super(props);
     this.state = {
       open: false,
-      // documents:[],
       mails: [],
       subject: '',
       content: '',
@@ -134,7 +119,6 @@ class EventRow extends Component {
       colorAdd: '',
       check: true,
       disabledBtnSendMail: false
-
     };
 
   }
@@ -216,25 +200,17 @@ class EventRow extends Component {
     }
     else {
       AddRole({ idUser: idUser, idProfile: idEvent }).then(res => {
-
-
         if (res.assignmentDate !== '') {
-
           this.setState({ res_add: "Profil ajouté avec succès", openDialgAdd: true, colorAdd: "success" });
           document.getElementById(idEvent).color = "danger";
           document.getElementById(idEvent).className = "btn btn-danger btn-sm";
           document.getElementById(idEvent).children[0].className = "fa fa-trash";
-
         }
         else this.setState({ res_add: "Echecs Ajout de profil", openDialgAdd: true, colorAdd: "danger" })
       },
-
       ).catch(err => console.log(err))
-
     }
-    // console.log("res_add"+this.state.res_add)
   }
-
 
 
   getAffecteProfile = (idUser, event) => {
@@ -262,7 +238,6 @@ class EventRow extends Component {
     } else {
       return <div>  <Button color="success" id={event.profileId} size="sm" className="mr-2" onClick={() => this.RoleUser(idUser, event.profileId)}>
         <i className="fa fa-plus"></i></Button>
-
         <Dialog
           onClose={this.handleClose}
           open={this.state.openDialgAdd}
@@ -279,11 +254,7 @@ class EventRow extends Component {
             <Button onClick={() => this.setState({ openDialgAdd: false })} color="primary">Fermer </Button>
           </DialogActions>
         </Dialog>
-
-
-
       </div>
-
     }
   }
 
@@ -413,45 +384,9 @@ class EventRow extends Component {
 
 
 
-  //Handle close
-  handleClose = () => {
-    this.setState({ open: false, mailResultDisplay: "none", openSecondDialog: false, openThirdDialog: true });
-    this.setState({ checked: [], res_mail: '', openDialgAdd: false });
-  }
 
 
-  //Send a mail 
-  send = (param, param1, param2, param3) => {
-    //hello
-    this.setState({ mailResultDisplay: "none", disabledBtnSendMail: true })
-    if (this.state.email !== '') {
-      param3.push(this.state.email);
-    };
-    sendMail(param, param1, param2, param3)
-      .then(res => {
-        console.log('aaa', res.msg)
-        if (res.msg === "Echec d'envoi!!") { this.setState({ mailResultDisplay: "block", res_mail: res, checked: [], disabledBtnSendMail: false }) }
-        else if (res.msg === "Vous devez saisir au moins un destinataire!!") { this.setState({ mailResultDisplay: "block", res_mail: res, checked: [], disabledBtnSendMail: false }) }
-        else {
-          this.setState({ checked: [], res_mail: res, open: false, mailResultDisplay: "none", openSecondDialog: true, disabledBtnSendMail: false })
-          setTimeout(() => {
-            this.setState({ openSecondDialog: false })
 
-
-          }, 1500);
-        }
-      }
-      ).catch(error => {
-        alert(error)
-        setTimeout(() => {
-          this.setState({ open: false })
-
-
-        }, 500);
-      })
-
-
-  };
 
 
 
@@ -495,7 +430,7 @@ class EventRow extends Component {
   }
 
 
-  //Download a pdf file
+  //Download a csv file
   downloadCsv = (id, name) => {
     console.log('download  ', id, name)
     DownloadACsv(id)
@@ -620,6 +555,8 @@ class EventRow extends Component {
 
 
   render() {
+    const isChecked = this.props.selectedDocs.some(doc => doc.key === this.props.event.key);
+
     const check = this.state.check;
     const event = this.props.event;
     const res_mail = this.state.res_mail;
@@ -629,7 +566,14 @@ class EventRow extends Component {
         return <Alert color='danger' style={{ position: 'absolute', BackgroundColor: "danger", left: '40%', top: '60%', fontSize: '20px' }}>Aucun document trouvé</Alert>
       else return (
 
-        <tr className={" " + this.state.removed} >
+        <tr key={event.key}>
+          <td>
+            <Checkbox
+              checked={isChecked}
+              onChange={() => this.props.onToggleDoc(this.props.event)}
+            />
+          </td>
+
           {(this.props.ComponentName == 'SimpleSearch') ? <td>{this.props.index + 1}</td> : null}
           {this.props.details.map((el, key) => {
             if (el.nomColonne == 'accountingDate')
@@ -652,7 +596,7 @@ class EventRow extends Component {
 
 
             else
-              return (<td key={el.colonneDisplay} >{event[el.nomColonne] != null ? event[el.nomColonne] : ' '} </td>);
+              return (<td key={el.colonneDisplay} > {event[el.nomColonne] != null ? event[el.nomColonne] : ' '} </td>);
           }
           )
           }

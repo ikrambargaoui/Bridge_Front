@@ -7,7 +7,7 @@ module.exports = {
 };
 
 */
-
+/*
 
 module.exports = {
   Url: "https://exstream-uat.biat.int",
@@ -17,16 +17,16 @@ module.exports = {
 module.exports = {
   Url: "https://prd-exstreamap02.biat.int",
 };
+
 */
 
 
 
-/*
 module.exports = {
   
   Url: "http://localhost:1920",
 };
-*/
+
 /*
   module.exports = {
     Url: "http://localhost:9595/WSM-API",
@@ -38,7 +38,6 @@ module.exports = {
 module.exports = {
   Url: "http://10.1.50.2:1920",
 };
-
 
 */
 /*

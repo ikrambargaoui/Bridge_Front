@@ -73,15 +73,9 @@ class DialogInfo extends Component {
   };
 
 
-
-
-
-
   handleClickOpen = () => {
-
     this.setState({
       open: true,
-
     });
   };
 
@@ -148,10 +142,6 @@ class DialogInfo extends Component {
                   <h5 className="panel-title">
                     {this.props.doc.editionMode != null ? ' Mode édition : ' + this.props.doc.editionMode : ''} </h5>
 
-
-
-
-
                 </card>
 
               </div>
@@ -167,22 +157,9 @@ class DialogInfo extends Component {
       </div>
 
 
-
-
-
-
-
-
-
-
-
     );
   }
 }
 
 export default DialogInfo;
 
-
-
-
-//onClick={this.handleClose}

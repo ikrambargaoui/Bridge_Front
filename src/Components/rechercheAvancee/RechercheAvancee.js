@@ -65,7 +65,7 @@ class RechercheAvancee extends Component {
 
   }
   componentDidMount() {
- 
+
     this.props.getColumns()
   }
   componentWillMount() {
@@ -107,7 +107,6 @@ class RechercheAvancee extends Component {
         alert(error)
         this.setState({
           loadingDisplayType: false
-
         });
       })
   }
@@ -156,54 +155,54 @@ class RechercheAvancee extends Component {
         refOp: this.state.refOp
       }
       findDocByKeyWords(request)
-      .then((response) => {
-        this.setState({
+        .then((response) => {
+          this.setState({
             documents: response,
             visibile1: false,
             visibile2: true,
             accountDev: '',
             loadingBtn: false
-        });
-    })
-    .catch((error) => {
-        if (error.response) {
-           
+          });
+        })
+        .catch((error) => {
+          if (error.response) {
+
             if (error.response.status === 400) {
-            
-                
-                this.setState({
-                    message: error.response.data.msg,
-                    visibile2: false,
-                    visibile1: true,
-                    loadingBtn: false
-                });
-            } else if (error.response.status === 503) {
-               
-                this.setState({
-                    message: "Le service est actuellement indisponible. Veuillez réessayer plus tard.",
-                    visibile2: false,
-                    visibile1: true,
-                    loadingBtn: false
-                });
-            } else {
-              
-                this.setState({
-                    message: "Une erreur est survenue : " + error.response.status,
-                    visibile2: false,
-                    visibile1: true,
-                    loadingBtn: false
-                });
-            }
-        } else {
-           
-            this.setState({
-                message: "Une erreur est survenue lors de la communication avec le serveur.",
+
+
+              this.setState({
+                message: error.response.data.msg,
+                visibile2: false,
+                visibile1: true,
                 loadingBtn: false
+              });
+            } else if (error.response.status === 503) {
+
+              this.setState({
+                message: "Le service est actuellement indisponible. Veuillez réessayer plus tard.",
+                visibile2: false,
+                visibile1: true,
+                loadingBtn: false
+              });
+            } else {
+
+              this.setState({
+                message: "Une erreur est survenue : " + error.response.status,
+                visibile2: false,
+                visibile1: true,
+                loadingBtn: false
+              });
+            }
+          } else {
+
+            this.setState({
+              message: "Une erreur est survenue lors de la communication avec le serveur.",
+              loadingBtn: false
             });
-        }
-    });
-}
-};
+          }
+        });
+    }
+  };
 
 
 
