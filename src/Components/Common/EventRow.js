@@ -3,7 +3,7 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router-dom';
 import { confirmAlert } from 'react-confirm-alert';
 import { IoMdDownload } from "react-icons/io";
-import 'react-confirm-alert/src/react-confirm-alert.css'; 
+import 'react-confirm-alert/src/react-confirm-alert.css';
 import { } from '../Tables/example.scss';
 import { } from '../Tables/lib/styles.css';
 import Switch from "react-switch";
@@ -211,8 +211,13 @@ class EventRow extends Component {
       ).catch(err => console.log(err))
     }
   }
-
-
+  handleViewDocument = () => {
+    if (this.props.history) {
+      this.props.history.push(`/document-view/${this.props.event.key}`);
+    } else {
+      console.error('History not available');
+    }
+  }
   getAffecteProfile = (idUser, event) => {
     if (event.affecte === 'O') {
       return <div> <Button color="danger" id={event.profileId} size="sm" onClick={() => this.RoleUser(idUser, event.profileId)}   >
@@ -580,6 +585,37 @@ class EventRow extends Component {
               return (<td key={el.colonneDisplay}> {event[el.nomColonne]}</td>);
 
 
+
+            else if (el.nomColonne == 'accountNumber')
+
+
+              return (
+                <td key={el.colonneDisplay}>
+                  {(event.folderNumber).startsWith('LD')
+                    ? (event.folderNumber) : (event.accountNumber)
+
+                  }
+
+                </td>
+              );
+
+
+
+            else if (el.nomColonne == 'ctosAccountNumber')
+
+
+              return (
+                <td key={el.colonneDisplay}>
+                  {(event.folderNumber).startsWith('LD')
+                    ? (event.migrefBiat) : (event.ctosAccountNumber)
+
+                  }
+
+                </td>
+              );
+
+
+
             else if (el.nomColonne == 'contentieux')
 
 
@@ -589,7 +625,23 @@ class EventRow extends Component {
                   <Badge
                     color={event.contentieux === "NON" ? "success" : ((event.contentieux === "NON") ? "danger" : "")}
                     pill>
-                    {(event.contentieux) === "NON" ? "Non" : ((event.contentieux) === "OUI" ? "Oui" : "-")}</Badge></td>
+                    {(event.contentieux) === "NON" ? "NON" : ((event.contentieux) === "OUI" ? "OUI" : "-")}</Badge></td>
+
+
+              );
+
+
+
+            else if (el.nomColonne == 'transfertCtx')
+
+
+              return (
+
+                <td key={el.colonneDisplay}>
+                  <Badge
+                    color={event.transfertCtx === "NON" ? "success" : ((event.transfertCtx === "NON") ? "danger" : "")}
+                    pill>
+                    {(event.transfertCtx) === "NON" ? "NON" : ((event.transfertCtx) === "OUI" ? "OUI" : "-")}</Badge></td>
 
 
               );
@@ -605,7 +657,18 @@ class EventRow extends Component {
             <Button color='transparent' size="sm" className="mr-2" style={{ margin: "0px", padding: "0px" }}>
               <DialogInfo doc={event} />
             </Button>
-            <Link to={`/DocumentView/${event.key}`}  ><Button color="danger" size="sm" className="mr-2"><i className="fa fa-eye"></i></Button> </Link>
+            <Link
+              to={`/DocumentView/${this.props.event.key}`}
+              onClick={() => {
+                if (this.props.onNavigateToDocument) {
+                  this.props.onNavigateToDocument();
+                }
+              }}
+            >
+              <Button color="danger" size="sm" className="mr-2">
+                <i className="fa fa-eye"></i>
+              </Button>
+            </Link>
             <Button color="primary" size="sm" className="mr-2" onClick={() => this.download(event.key, event.fileNameOut)}><i className="fa fa-download"></i></Button>
             {event.fileNameOutCsv != null && <Button color="success" size="sm" className="mr-2" onClick={() => this.downloadCsv(event.key, event.fileNameOutCsv)}>csv</Button>
             }

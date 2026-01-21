@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux'
 import { } from '../Common/pagination.scss'
 import axios from 'axios';
@@ -14,10 +14,12 @@ import {
     Card,
     CardBody,
 
+    Row
+
 } from 'reactstrap';
 import UserInformation from '../Common/UserInformation';
 import GestionDelegation from '../Delegation/GestionDelegation';
-
+import { findUserInformationById } from '../../Services/userService';
 import { getProfiles } from '../../Services/profileService';
 import { isNullOrUndefined } from 'util';
 
@@ -32,12 +34,12 @@ export default class gestionprofil extends Component {
             details: null,
             cols: null,
             matricule: '',
-
+            appUserName: '',
+            appUserLastName: '',
             idUser: this.props.location.pathname.slice(15),
         }
 
         console.log(this.state.idUser);
-
     }
 
 
@@ -48,9 +50,25 @@ export default class gestionprofil extends Component {
 
         }).catch(err => console.log('hr:', err))
 
+
+
+        findUserInformationById(this.state.idUser)
+            .then((response) => {
+
+                this.setState({
+
+                    matricule: response.appUserCode,
+                    appUserName: response.appUserFirstName,
+                    appUserLastName: response.appUserLastName,
+                });
+                console.log('response of api', response)
+            })
+            .catch((error) => {
+                alert(error)
+            })
+
+
     }
-
-
 
 
 
@@ -93,21 +111,35 @@ export default class gestionprofil extends Component {
 
 
         return (
-            <Col md="12">
-                <Card className="main-card mb-3">
-                    <CardBody>
-                        <SearchTable
-                            details={details}
-                            data={this.state.data}
-                            ComponentName={name}
-                            idUser={this.state.idUser}
-                            DisplayComponentName={displayName}
-                            icon={icon}
-                        />
 
-                    </CardBody>
-                </Card>
-            </Col>
+            <Fragment>
+                <Row>
+
+                    <Col md="12">
+                        <Card className="main-card mb-3">
+                            <CardBody>
+                                Matricule : {this.state.matricule} {'     '} {this.state.appUserLastName} {' '} {this.state.appUserName}
+
+                            </CardBody>
+                        </Card>
+                    </Col>
+                    <Col md="12">
+                        <Card className="main-card mb-3">
+                            <CardBody>
+                                <SearchTable
+                                    details={details}
+                                    data={this.state.data}
+                                    ComponentName={name}
+                                    idUser={this.state.idUser}
+                                    DisplayComponentName={displayName}
+                                    icon={icon}
+                                />
+
+                            </CardBody>
+                        </Card>
+                    </Col>
+                </Row>
+            </Fragment>
         )
     }
 }

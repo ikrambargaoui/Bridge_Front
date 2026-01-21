@@ -40,6 +40,11 @@ const Login = Loadable({
   loading
 });
 
+const RechercheAvancee = Loadable({
+  loader: () => import('./Components/rechercheAvancee/RechercheAvancee'),
+  loading
+});
+
 const Page404 = Loadable({
   loader: () => import('./views/Pages/Page404'),
   loading

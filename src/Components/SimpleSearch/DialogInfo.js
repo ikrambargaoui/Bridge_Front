@@ -132,13 +132,28 @@ class DialogInfo extends Component {
                 <card>
                   <h6 className="panel-title">
                     {this.props.doc.typeDocument != null ? 'Type de document : ' + this.props.doc.typeDocument : ''} </h6>
+                  <h6 className="panel-title">
+                    {this.props.doc.folderNumber?.startsWith('LD')
+                      ? (this.props.doc.folderNumber
+                        ? 'Numéro de compte : ' + this.props.doc.folderNumber
+                        : '')
+                      : (this.props.doc.accountNumber
+                        ? 'Numéro de compte : ' + this.props.doc.accountNumber
+                        : '')
+                    }
+                  </h6>
 
                   <h6 className="panel-title">
-                    {this.props.doc.accountNumber != null ? 'Numéro de compte : ' + this.props.doc.accountNumber : ''}  </h6>
-
-                  <h6 className="panel-title">
-                    {this.props.doc.ctosAccountNumber != null ? 'Numéro de compte CTOS: ' + this.props.doc.ctosAccountNumber : ''}  </h6>
-                  <h6 className="panel-title">
+                    {this.props.doc.folderNumber?.startsWith('LD')
+                      ? (this.props.doc.migrefBiat
+                        ? 'Numéro de compte CTOS : ' + this.props.doc.migrefBiat
+                        : '')
+                      : (this.props.doc.ctosAccountNumber
+                        ? 'Numéro de compte CTOS : ' + this.props.doc.ctosAccountNumber
+                        : '')
+                    }
+                  </h6>                
+                    <h6 className="panel-title">
                     {this.props.doc.clientCode != null && this.props.doc.clientCode !== "NOTFOUND" ? ' Code client :' + this.props.doc.clientCode : ''} </h6>
 
                   <h6 className="panel-title">

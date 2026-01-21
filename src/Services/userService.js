@@ -47,6 +47,22 @@ export function findUserInformationByCode(param) {
 
 
 
+export function findUserInformationById(param) {
+
+    return new Promise((resolve, reject) => {
+        return apiCall("get", URL + '/Bridge/appuser/findUserById/' + param, null).then(
+            (res) => {
+                console.log('ress', res)
+                resolve(res);
+            })
+            .catch(err => {
+                reject(err);
+            })
+    })
+}
+
+
+
 
 
 export function getAllUsers() {

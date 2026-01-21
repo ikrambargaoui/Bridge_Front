@@ -8,7 +8,7 @@ import { } from '../Tables/lib/styles.css';
 import { findDocByKeyWords } from '../../Services/StructureService'
 
 import { apiCall } from '../../Services/api'
-import printJS  from 'print-js'
+import printJS from 'print-js'
 
 import {
   Nav,
@@ -61,13 +61,13 @@ export default class DocumentView extends Component {
   }
 
   printDoc = () => {
- 
+
     ViewAPdf(this.props.match.params.value)
       .then(res => {
         console.log(res)
         var blob = new Blob([res], { type: "application/pdf" });
         var blobURL = URL.createObjectURL(blob)
-        printJS({printable:blobURL, type:'pdf', showModal:false});
+        printJS({ printable: blobURL, type: 'pdf', showModal: false });
       })
       .catch(err => console.log(err))
   }
@@ -88,7 +88,8 @@ export default class DocumentView extends Component {
               <Card className="main-card mb-1">
                 <CardBody>
                   <Nav style={{ display: "flex", justifyContent: "space-around" }}>
-                  <NavItem>
+                   
+                    <NavItem>
                       <Button onClick={this.printDoc} style={{}}>  <i className="fa fa-print"></i></Button>
                     </NavItem>
                     <NavItem>

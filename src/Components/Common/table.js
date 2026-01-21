@@ -5,6 +5,7 @@ import EventRow from './EventRow'
 import { } from '../Tables/example.scss';
 import { } from '../Tables/lib/styles.css';
 import Search from './SearchBar';
+import { PDFDocument } from 'pdf-lib';
 import Pagination from './pagination'
 import { connect } from 'react-redux'
 import {
@@ -18,7 +19,8 @@ import {
 } from 'reactstrap';
 import SearchDate from './SearchBarDate';
 import { findDocByKeyWords } from '../../Services/docsServices';
-import { DownloadAPdf } from '../../Services/docsServices';
+import { DownloadAPdf, DownloadAPdfArrayBuffer,DownloadACsv } from '../../Services/docsServices';
+import Checkbox from '@material-ui/core/Checkbox';
 
 
 class SearchTable extends Component {
@@ -127,11 +129,107 @@ class SearchTable extends Component {
             .catch(err => console.log(err))
     }
 
-    downloadAllSelected = () => {
-        this.state.selectedDocs.forEach(doc => {
-            const fileName = doc.fileNameOut || `document_${doc.key}.pdf`;
-            this.download(doc.key, fileName);
-        });
+
+
+
+    downloadMultiple = (id, name) => {
+        return DownloadAPdf(id, { responseType: 'arraybuffer' });
+
+    }
+
+    downloadForMerge = (id) => {
+        return DownloadAPdfArrayBuffer(id);  // la nouvelle fonction
+    };
+    /*
+        downloadAllSelected = () => {
+            this.state.selectedDocs.forEach(doc => {
+                const fileName = doc.fileNameOut || `document_${doc.key}.pdf`;
+                this.download(doc.key, fileName);
+            });
+        };
+    */
+
+
+downloadAllSelectedCsv = async () => {
+    const { selectedDocs } = this.state;
+
+    let finalCsv = '';
+    let isFirstFile = true;
+
+    for (const doc of selectedDocs) {
+        try {
+            const response = await DownloadACsv(doc.key);
+            const csvText = await response.data.text(); 
+            const lines = csvText
+                .replace(/\r\n/g, '\n') 
+                .split('\n')
+                .filter(line => line.trim() !== '');
+
+            if (lines.length === 0) continue;
+
+            if (isFirstFile) {
+               
+                finalCsv += lines.join('\n');
+                isFirstFile = false;
+            } else {
+                // On supprime le header
+                finalCsv += '\n' + lines.slice(1).join('\n');
+            }
+
+        } catch (err) {
+            console.error('Erreur CSV pour le doc', doc.key, err);
+        }
+    }
+
+    if (!finalCsv) return;
+
+    finalCsv = '\uFEFF' + finalCsv;
+
+    const blob = new Blob([finalCsv], {
+        type: 'text/csv;charset=utf-8;'
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download = 'Multiple_Docs_CSV.csv';
+    link.click();
+
+    URL.revokeObjectURL(url);
+};
+
+
+
+
+    downloadAllSelected = async () => {
+        const { selectedDocs } = this.state;
+        const mergedPdf = await PDFDocument.create();
+
+        for (const doc of selectedDocs) {
+
+            // Récupère un ArrayBuffer propre
+            const response = await this.downloadForMerge(doc.key);
+            const pdfBytes = response.data;
+
+            // Charge le PDF
+            const pdf = await PDFDocument.load(pdfBytes);
+            const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+
+            pages.forEach(page => mergedPdf.addPage(page));
+        }
+
+        // Final PDF
+        const mergedBytes = await mergedPdf.save();
+
+        // Téléchargement
+        const blob = new Blob([mergedBytes], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = "Multipe_Docs_Pdf.pdf";
+        link.click();
     };
 
     handleToggleDoc = (doc) => {
@@ -182,8 +280,12 @@ class SearchTable extends Component {
                     el.editionTime.toString().toLowerCase().includes(search)
                     || el.contentieux &&
                     el.contentieux.toString().toLowerCase().includes(search)
+                    || el.transfertCtx &&
+                    el.transfertCtx.toString().toLowerCase().includes(search)
                     || el.folderNumber &&
                     el.folderNumber.toString().toLowerCase().includes(search)
+                    || el.migrefBiat &&
+                    el.migrefBiat.toString().toLowerCase().includes(search)
                 )
 
             }
@@ -291,7 +393,31 @@ class SearchTable extends Component {
             const items = []
 
             if (this.props.ComponentName == "AdvancedSearch") {
-                items.push(<th />)
+                items.push(
+                    <th key="selectAll">
+                        <Checkbox
+                            checked={
+                                this.state.pageOfItems.length > 0 &&
+                                this.state.selectedDocs.length === this.state.pageOfItems.length
+                            }
+                            onChange={() => {
+                                const allSelected =
+                                    this.state.selectedDocs.length === this.state.pageOfItems.length;
+
+                                if (allSelected) {
+                                    this.setState({ selectedDocs: [] });
+                                } else {
+                                    this.setState({
+                                        selectedDocs: this.state.pageOfItems.map(doc => ({
+                                            key: doc.key,
+                                            fileNameOut: doc.fileNameOut
+                                        }))
+                                    });
+                                }
+                            }}
+                        />
+                    </th>
+                );
             }
             for (var i = 0; i < this.props.details.length; i++) {
                 if (this.props.details[i].nomColonne === 'accountingDate') {
@@ -350,6 +476,9 @@ class SearchTable extends Component {
                         index={index}
                         selectedDocs={this.state.selectedDocs}
                         onToggleDoc={this.handleToggleDoc}
+                        onBeforeNavigate={this.props.onBeforeNavigate}
+                        history={this.props.history}
+                        onNavigateToDocument={this.props.onNavigateToDocument}
                     />
                 )
             )
@@ -398,10 +527,18 @@ class SearchTable extends Component {
                                                 className="btn btn-primary"
                                                 onClick={this.downloadAllSelected}
                                             >
-                                                Télécharger tout ({this.state.selectedDocs.length})
+                                                PDF ({this.state.selectedDocs.length})
+                                            </button>
+                                              <button
+                                                className="btn btn-success" style={{ marginLeft: '2px' }}
+                                                onClick={this.downloadAllSelectedCsv}
+                                            >
+                                                CSV ({this.state.selectedDocs.length})
                                             </button>
                                         </div>
                                     )}
+
+
                                     {
 
 

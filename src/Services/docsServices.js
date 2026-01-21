@@ -43,7 +43,20 @@ export function ViewAPdf(id) {
             })
     })
 }
+export function DownloadAPdfArrayBuffer(id) {
+    let token = localStorage.getItem('jwtToken')
+    var headers = {
+        'Content-Type': 'application/json',
+        'Authorization': "Bearer " + token
+    }
 
+    return axios({
+        url: URL + '/Bridge/Documents/download/' + id,
+        method: 'get',
+        responseType: 'arraybuffer',  
+        headers: headers,
+    });
+}
 
 export function DownloadAPdf(id) {
 
@@ -127,7 +140,9 @@ export function findDocByKeyWords(data) {
                             ctosAccountNumber:el.ctosAccountNumber,
                             fileNameOutCsv:el.fileNameOutCsv,
                             pathOutCsv:el.pathOutCsv,
-                            contentieux:el.contentieux
+                            contentieux:el.contentieux,
+                            transfertCtx:el.transfertCtx,
+                            migrefBiat:el.migrefBiat
 
                         }
 

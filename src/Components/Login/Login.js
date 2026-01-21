@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom';
 import Notifications, { notify } from 'react-notify-toast';
 import { authUser } from '../../Store/Actions/auth';
 import logoBiat from '../../../src/assets/img/logo_biat.png';
-
+import { findLastVersion } from '../../Services/VersionsServices';
 import homeBiat from '../../../src/assets/img/home_br.png';
 import { connect } from 'react-redux';
 
@@ -15,20 +15,34 @@ class Login extends Component {
     this.state = {
       userName: "",
       password: "",
+       version:"",
       errors: {}
     }
   }
 
-  componentDidMount() {
-    // If logged in and user navigates to Login page, should redirect them to dashboard
-    if (this.props.auth) {
-      this.props.history.push("/Dashboard");
-    }
-    else {
-      localStorage.clear()
-    }
 
+ async componentDidMount() {
+  if (this.props.auth) {
+    this.props.history.push("/Dashboard");
+  } else {
+    localStorage.clear();
   }
+
+  try {
+    const response = await findLastVersion();
+    this.setState({
+      version: response
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+
+
+
+
+
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.auth) {
@@ -163,9 +177,10 @@ class Login extends Component {
                       
                       <h5>IMEX - BIAT</h5>
                       <br />
-                      <p>
-                        version :  4.0.0
-                      </p>
+                      <h6>
+                       Version: 7.0.2.{this.state.version}
+                        </h6>
+                    
                     </div></CardFooter>
                 </Card>
               </CardGroup>
