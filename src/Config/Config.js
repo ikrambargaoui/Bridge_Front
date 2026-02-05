@@ -19,8 +19,13 @@ module.exports = {
 
 
 module.exports = {
-  Url: "https://prd-exstream.biat.int",
+  Url: "http://192.168.56.101:1920",
 };
+
+
+/*module.exports = {
+  Url: "https://prd-exstream.biat.int",
+};*/
 
 /*
 module.exports = {
