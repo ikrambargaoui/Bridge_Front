@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { } from '../../scss/example.scss';
 import { } from '../../scss/lib/styles.css';
-import { Autocomplete } from "@autocomplete/material-ui";
+import Autocomplete from '@material-ui/lab/Autocomplete';
 import { getUserInformation } from '../../Services/userService';
 
 import {
