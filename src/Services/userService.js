@@ -135,3 +135,19 @@ export function updateUserByAdmin(data) {
             })
     })
 } 
+
+
+
+
+// AJOUT : récupérer les profils d’un utilisateur par son CUTI (appUserCode)
+export function findUserProfiles(cuti) {
+    return new Promise((resolve, reject) => {
+        return apiCall("get", URL + '/Bridge/appuser/findUserProfiles/' + cuti, null).then(
+            (res) => {
+                resolve(res);
+            })
+            .catch(err => {
+                reject(err);
+            })
+    })
+}
