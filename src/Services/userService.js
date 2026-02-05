@@ -27,11 +27,8 @@ import { withStyles } from '@material-ui/core/styles';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 
-import {
-  changeStateUser,
-  findUserProfiles,
-  findUserRights
-} from '../../Services/userService';
+import { changeStateUser, findUserProfiles, findUserRights } from '../../Services/userService';
+
 
 // ✅ Icons
 import { FaUserShield, FaUserTie, FaUserCog, FaUserCheck } from "react-icons/fa";
