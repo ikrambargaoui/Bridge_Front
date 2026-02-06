@@ -10,6 +10,9 @@ import Switch from "react-switch";
 import { GrView } from "react-icons/gr";
 import { FaUnlockKeyhole } from "react-icons/fa6";
 import { PiFileCsvDuotone } from "react-icons/pi";
+import { Tooltip } from 'reactstrap';
+import { findUserProfiles } from '../../Services/userService';
+
 import {
   Button,
   Card,
@@ -103,6 +106,13 @@ class EventRow extends Component {
     super(props);
     this.state = {
       open: false,
+  profilesLoading: false,
+  profiles: [],
+  profilesError: '',
+  cachedProfilesByCuti: {},
+
+  tooltipOpenByTarget: {},
+
       mails: [],
       subject: '',
       content: '',
@@ -120,13 +130,9 @@ class EventRow extends Component {
       colorAdd: '',
       check: true,
       disabledBtnSendMail: false,
-
-      // ✅ AJOUT tooltip profils
-      tooltipOpen: false,
       profilesLoading: false,
       profiles: [],
       profilesError: '',
-      currentTooltipTarget: null,
       cachedProfilesByCuti: {} // cache pour éviter appels multiples
     };
   }
@@ -578,6 +584,52 @@ class EventRow extends Component {
 
 
 
+openTooltip = (targetId) => {
+  this.setState(prev => ({
+    tooltipOpenByTarget: { ...prev.tooltipOpenByTarget, [targetId]: true }
+  }));
+};
+
+closeTooltip = (targetId) => {
+  this.setState(prev => ({
+    tooltipOpenByTarget: { ...prev.tooltipOpenByTarget, [targetId]: false }
+  }));
+};
+
+onHoverFirstName = async (cuti, targetId) => {
+  this.openTooltip(targetId);
+
+  if (this.state.cachedProfilesByCuti[cuti]) {
+    this.setState({
+      profiles: this.state.cachedProfilesByCuti[cuti],
+      profilesLoading: false,
+      profilesError: ''
+    });
+    return;
+  }
+
+  this.setState({ profilesLoading: true, profilesError: '', profiles: [] });
+
+  try {
+    const res = await findUserProfiles(cuti);
+    const profils = res || [];
+
+    this.setState(prev => ({
+      profiles: profils,
+      profilesLoading: false,
+      cachedProfilesByCuti: { ...prev.cachedProfilesByCuti, [cuti]: profils }
+    }));
+  } catch (e) {
+    this.setState({
+      profilesLoading: false,
+      profilesError: "Impossible de charger les profils",
+      profiles: []
+    });
+  }
+};
+
+
+
   render() {
     const isChecked = this.props.selectedDocs.some(doc => doc.key === this.props.event.key);
 
@@ -681,39 +733,46 @@ class EventRow extends Component {
                   <td key={el.colonneDisplay}>{(event.appUserCode) ? event.appUserCode : " "} </td>);
 
               // ✅ MODIF : prénom avec tooltip
-              else if (el.nomColonne == 'appUserFirstName') {
-                const targetId = `prenom-${event.appUserCode}`;
+              else if (el.nomColonne === 'appUserFirstName') {
+  const targetId = `prenom-${event.appUserCode}`;
+  const isOpen = !!this.state.tooltipOpenByTarget[targetId];
 
-                return (
-                  <td key={el.colonneDisplay}>
-                    <span
-                      id={targetId}
-                      style={{ cursor: 'pointer', textDecoration: 'underline' }}
-                      onMouseEnter={() => this.onHoverFirstName(event.appUserCode, targetId)}
-                    >
-                      {(event.appUserFirstName) ? event.appUserFirstName : ' '}
-                    </span>
+  return (
+    <td key={el.colonneDisplay}>
+      <span
+        id={targetId}
+        style={{ cursor: 'pointer', textDecoration: 'underline' }}
+        onMouseEnter={() => this.onHoverFirstName(event.appUserCode, targetId)}
+        onMouseLeave={() => this.closeTooltip(targetId)}
+      >
+        {event.appUserFirstName ? event.appUserFirstName : ' '}
+      </span>
 
-                    {this.state.currentTooltipTarget === targetId && (
-                      <Tooltip
-                        placement="top"
-                        isOpen={this.state.tooltipOpen}
-                        target={targetId}
-                        toggle={this.toggleTooltip}
-                        autohide={false}
-                      >
-                        {this.state.profilesLoading && "Chargement des profils..."}
-                        {!this.state.profilesLoading && this.state.profilesError && this.state.profilesError}
-                        {!this.state.profilesLoading && !this.state.profilesError && (
-                          (this.state.profiles.length === 0)
-                            ? "Aucun profil"
-                            : this.state.profiles.map(p => p.profileName).join(", ")
-                        )}
-                      </Tooltip>
-                    )}
-                  </td>
-                );
-              }
+      <Tooltip
+        placement="top"
+        isOpen={isOpen}
+        target={targetId}
+        toggle={() =>
+          this.setState(prev => ({
+            tooltipOpenByTarget: {
+              ...prev.tooltipOpenByTarget,
+              [targetId]: !prev.tooltipOpenByTarget[targetId]
+            }
+          }))
+        }
+        autohide={false}
+      >
+        {this.state.profilesLoading && "Chargement des profils..."}
+        {!this.state.profilesLoading && this.state.profilesError && this.state.profilesError}
+        {!this.state.profilesLoading && !this.state.profilesError && (
+          this.state.profiles.length === 0
+            ? "Aucun profil"
+            : this.state.profiles.map(p => p.profileName).join(", ")
+        )}
+      </Tooltip>
+    </td>
+  );
+}
 
               else if (el.nomColonne == "appUserLastName")
                 return (
