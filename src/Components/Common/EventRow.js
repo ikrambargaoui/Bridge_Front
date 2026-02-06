@@ -22,7 +22,6 @@ import {
 } from 'reactstrap';
 
 import Dialog from '@material-ui/core/Dialog';
-import MuiDialogTitle from '@material-ui/core/DialogTitle';
 import MuiDialogContent from '@material-ui/core/DialogContent';
 import MuiDialogActions from '@material-ui/core/DialogActions';
 import IconButton from '@material-ui/core/IconButton';
@@ -56,7 +55,7 @@ import ActionLogDetail from '../ActionLog/ActionLogDetail'
 
 
 
-const DialogTitle = withStyles(theme => ({
+const CustomDialogTitle = withStyles(theme => ({
   root: {
     borderBottom: `1px solid ${theme.palette.divider}`,
     margin: 0,
@@ -74,13 +73,14 @@ const DialogTitle = withStyles(theme => ({
     <MuiDialogTitle disableTypography className={classes.root}>
       <Typography variant="h6">{children}</Typography>
       {onClose ? (
-        <IconButton aria-label="Close" className={classes.closeButton} onClick={onClose}>
+        <IconButton className={classes.closeButton} onClick={onClose}>
           <CloseIcon />
         </IconButton>
       ) : null}
     </MuiDialogTitle>
   );
 });
+
 
 
 const DialogContent = withStyles(theme => ({
@@ -542,6 +542,8 @@ class EventRow extends Component {
 
 
 openProfilesModal = async (user) => {
+  console.log("CLICK PROFILS", user); // 👈 ICI EXACTEMENT
+
   this.setState({
     profilesModalOpen: true,
     profilesModalLoading: true,
@@ -552,17 +554,21 @@ openProfilesModal = async (user) => {
 
   try {
     const res = await findUserProfiles(user.appUserCode);
+    console.log("PROFILS RECUS", res); // 👈 optionnel mais utile
+
     this.setState({
       profilesModalData: res || [],
       profilesModalLoading: false
     });
   } catch (e) {
+    console.error("ERREUR PROFILS", e);
     this.setState({
       profilesModalLoading: false,
       profilesModalError: "Impossible de charger les profils"
     });
   }
 };
+
 
 closeProfilesModal = () => {
   this.setState({
@@ -732,9 +738,10 @@ closeProfilesModal = () => {
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle onClose={this.closeProfilesModal}>
-          Profils de {this.state.profilesModalUser?.appUserFirstName || ''}
-        </DialogTitle>
+        <CustomDialogTitle onClose={this.closeProfilesModal}>
+            Profils de {this.state.profilesModalUser?.appUserFirstName}
+        </CustomDialogTitle>
+
 
         <DialogContent>
           {this.state.profilesModalLoading && (
