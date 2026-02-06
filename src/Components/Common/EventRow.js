@@ -53,7 +53,7 @@ import { deleteRightFromProfile } from '../../Services/rightService';
 import { AddRightToProfile } from '../../Services/rightService';
 import { updateCol } from '../../Services/columnService';
 import ActionLogDetail from '../ActionLog/ActionLogDetail'
-import { changeStateUser, findUserProfiles } from '../../Services/userService'; // ✅ AJOUT findUserProfiles
+
 
 
 
