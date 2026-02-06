@@ -442,7 +442,6 @@ class EventRow extends Component {
   }
 
 
-
   removeDoc = (param) => {
     removeADocument(param)
       .then((response) => {
@@ -678,115 +677,130 @@ closeProfilesModal = () => {
     }
 
     else if (this.props.ComponentName == 'ListUser') {
-  if (!event.appUserCode)
-    return (
-      <Alert color="danger" style={{ position: 'absolute', left: '40%', top: '60%' }}>
-        Aucun utilisateur trouvé
-      </Alert>
-    );
+      if (!event.appUserCode)
+        return (
+          <Alert color="danger" style={{ position: 'absolute', left: '40%', top: '60%' }}>
+            Aucun utilisateur trouvé
+          </Alert>
+        );
 
-  return (
-    <>
-      <tr className={" " + this.state.removed}>
-        {this.props.details.map((el) => {
+      return (
+        <>
+          <tr className={" " + this.state.removed}>
+            {this.props.details.map((el) => {
 
-          if (el.nomColonne === "appUserCode")
-            return <td key={el.colonneDisplay}>{event.appUserCode}</td>;
+              if (el.nomColonne === "appUserCode")
+                return <td key={el.colonneDisplay}>{event.appUserCode}</td>;
 
-          if (el.nomColonne === "appUserFirstName")
-            return (
-              <td key={el.colonneDisplay}>
-                {event.appUserFirstName}
-              </td>
-            );
+              // MODIFICATION ICI : Prénom cliquable
+              if (el.nomColonne === "appUserFirstName")
+                return (
+                  <td key={el.colonneDisplay}>
+                    <span
+                      onClick={() => this.openProfilesModal(event)}
+                      style={{
+                        color: '#007bff',
+                        cursor: 'pointer',
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      {event.appUserFirstName}
+                    </span>
+                  </td>
+                );
 
-          if (el.nomColonne === "appUserLastName")
-            return <td key={el.colonneDisplay}>{event.appUserLastName}</td>;
+              if (el.nomColonne === "appUserLastName")
+                return <td key={el.colonneDisplay}>{event.appUserLastName}</td>;
 
-          if (el.nomColonne === "appUserEmail")
-            return <td key={el.colonneDisplay}>{event.appUserEmail}</td>;
+              if (el.nomColonne === "appUserEmail")
+                return <td key={el.colonneDisplay}>{event.appUserEmail}</td>;
 
-          if (el.nomColonne === "appUserState")
-            return (
-              <td key={el.colonneDisplay}>
-                <Badge color={event.appUserState === "Actif" ? "success" : "danger"} pill>
-                  {event.appUserState === "Actif" ? "Activé" : "Désactivé"}
-                </Badge>
-              </td>
-            );
+              if (el.nomColonne === "appUserState")
+                return (
+                  <td key={el.colonneDisplay}>
+                    <Badge color={event.appUserState === "Actif" ? "success" : "danger"} pill>
+                      {event.appUserState === "Actif" ? "Activé" : "Désactivé"}
+                    </Badge>
+                  </td>
+                );
 
-          return null;
-        })}
+              return null;
+            })}
 
-        <td>
-          {/* 🔹 BOUTON OUVRIR POPUP */}
-          <Button
-            color="info"
-            size="sm"
-            className="mr-2"
-            onClick={() => this.openProfilesModal(event)}
+            <td>
+              {/* 🔹 BOUTON OUVRIR POPUP */}
+              <Button
+                color="info"
+                size="sm"
+                className="mr-2"
+                onClick={() => this.openProfilesModal(event)}
+              >
+                <i className="fa fa-id-badge"></i>
+              </Button>
+
+              <Button
+                color="danger"
+                size="sm"
+                onClick={() => this.submitUserDelete(event.appUserCode, event.appUserState)}
+              >
+                <i className="fa fa-trash"></i>
+              </Button>
+            </td>
+          </tr>
+
+          {/* 🔹 POPUP PROFILS */}
+          <Dialog
+            open={this.state.profilesModalOpen}
+            onClose={this.closeProfilesModal}
+            fullWidth
+            maxWidth="sm"
           >
-            <i className="fa fa-id-badge"></i>
-          </Button>
+            <CustomDialogTitle onClose={this.closeProfilesModal}>
+              Profils de {this.state.profilesModalUser?.appUserFirstName || ''} {this.state.profilesModalUser?.appUserLastName || ''}
+            </CustomDialogTitle>
 
-          <Button
-            color="danger"
-            size="sm"
-            onClick={() => this.submitUserDelete(event.appUserCode, event.appUserState)}
-          >
-            <i className="fa fa-trash"></i>
-          </Button>
-        </td>
-      </tr>
+            <CustomDialogContent>
+              {this.state.profilesModalLoading && (
+                <Alert color="info">Chargement des profils...</Alert>
+              )}
 
-      {/* 🔹 POPUP PROFILS */}
-   
-<Dialog
-  open={this.state.profilesModalOpen}
-  onClose={this.closeProfilesModal}
-  fullWidth
-  maxWidth="sm"
->
-  <CustomDialogTitle onClose={this.closeProfilesModal}>
-    Profils de {this.state.profilesModalUser?.appUserFirstName || ''}
-  </CustomDialogTitle>
+              {this.state.profilesModalError && (
+                <Alert color="danger">{this.state.profilesModalError}</Alert>
+              )}
 
-  <CustomDialogContent>
-    {this.state.profilesModalLoading && (
-      <Alert color="info">Chargement des profils...</Alert>
-    )}
+              {!this.state.profilesModalLoading &&
+                !this.state.profilesModalError &&
+                (this.state.profilesModalData.length === 0 ? (
+                  <Alert color="warning">Aucun profil associé</Alert>
+                ) : (
+                  <div>
+                    <p><strong>Utilisateur:</strong> {this.state.profilesModalUser?.appUserCode}</p>
+                    <p><strong>Nombre de profils:</strong> {this.state.profilesModalData.length}</p>
+                    <hr />
+                    <h6>Liste des profils:</h6>
+                    {this.state.profilesModalData.map((p, idx) => (
+                      <Badge 
+                        key={p.profileId || p.id || idx} 
+                        color="primary" 
+                        className="mr-1 mb-1"
+                        style={{ fontSize: '1em', padding: '8px' }}
+                      >
+                        {p.profileName || p.name || p.libelle}
+                      </Badge>
+                    ))}
+                  </div>
+                ))}
+            </CustomDialogContent>
 
-    {this.state.profilesModalError && (
-      <Alert color="danger">{this.state.profilesModalError}</Alert>
-    )}
-
-    {!this.state.profilesModalLoading &&
-      !this.state.profilesModalError &&
-      (this.state.profilesModalData.length === 0 ? (
-        <Alert color="warning">Aucun profil</Alert>
-      ) : (
-        this.state.profilesModalData.map((p, idx) => (
-  <Badge key={p.profileId || p.id || idx} color="primary" className="mr-1 mb-1">
-    {p.profileName || p.name || p.libelle}
-  </Badge>
-))
-
-      ))}
-  </CustomDialogContent>
-
-  <CustomDialogActions>
-    <Button color="secondary" onClick={this.closeProfilesModal}>
-      Fermer
-    </Button>
-  </CustomDialogActions>
-</Dialog>
-
-    </>
-  );
-}
-
-
-
+            <CustomDialogActions>
+              <Button color="secondary" onClick={this.closeProfilesModal}>
+                Fermer
+              </Button>
+            </CustomDialogActions>
+          </Dialog>
+        </>
+      );
+    }
 
     else {
       return (
@@ -804,3 +818,7 @@ const mapStateToProps = state => ({
 })
 
 export default connect(mapStateToProps, {})(EventRow)
+
+
+
+/*Ikram*/
