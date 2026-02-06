@@ -10,7 +10,7 @@ import Switch from "react-switch";
 import { GrView } from "react-icons/gr";
 import { FaUnlockKeyhole } from "react-icons/fa6";
 import { PiFileCsvDuotone } from "react-icons/pi";
-import { findUserProfiles } from '../../Services/userService';
+import { findUserProfiles, changeStateUser } from '../../Services/userService';
 
 import {
   Button,
