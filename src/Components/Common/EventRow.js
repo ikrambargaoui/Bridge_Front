@@ -19,7 +19,6 @@ import {
   CardHeader,
   Alert,
   Badge,
-  Tooltip // ✅ AJOUT
 } from 'reactstrap';
 
 import Dialog from '@material-ui/core/Dialog';
@@ -105,13 +104,14 @@ class EventRow extends Component {
     super(props);
     this.state = {
       open: false,
-  profilesLoading: false,
-  profiles: [],
-  profilesError: '',
-  cachedProfilesByCuti: {},
-
-  tooltipOpenByTarget: {},
-
+      profilesLoading: false,
+      profiles: [],
+      profilesError: '',
+      profilesModalOpen: false,
+      profilesModalLoading: false,
+      profilesModalError: '',
+      profilesModalData: [],
+      profilesModalUser: null,
       mails: [],
       subject: '',
       content: '',
@@ -129,56 +129,13 @@ class EventRow extends Component {
       colorAdd: '',
       check: true,
       disabledBtnSendMail: false,
-      profilesLoading: false,
-      profiles: [],
-      profilesError: '',
       cachedProfilesByCuti: {} // cache pour éviter appels multiples
     };
   }
 
-  // ✅ AJOUT: toggle tooltip
-  toggleTooltip = () => {
-    this.setState(prev => ({ tooltipOpen: !prev.tooltipOpen }));
-  };
+ 
 
-  // ✅ AJOUT: au survol du prénom => charger profils si nécessaire
-  onHoverFirstName = async (cuti, targetId) => {
-    // ouvrir tooltip
-    this.setState({ currentTooltipTarget: targetId });
-
-    // si déjà dans cache => ne pas rappeler API
-    if (this.state.cachedProfilesByCuti[cuti]) {
-      this.setState({
-        profiles: this.state.cachedProfilesByCuti[cuti],
-        profilesLoading: false,
-        profilesError: ''
-      });
-      return;
-    }
-
-    // charger depuis backend
-    this.setState({ profilesLoading: true, profilesError: '', profiles: [] });
-
-    try {
-      const res = await findUserProfiles(cuti); // retourne List<Profile>
-      const profils = res || [];
-
-      this.setState(prev => ({
-        profiles: profils,
-        profilesLoading: false,
-        cachedProfilesByCuti: {
-          ...prev.cachedProfilesByCuti,
-          [cuti]: profils
-        }
-      }));
-    } catch (e) {
-      this.setState({
-        profilesLoading: false,
-        profilesError: "Impossible de charger les profils",
-        profiles: []
-      });
-    }
-  };
+ 
 
 
 
@@ -583,48 +540,37 @@ class EventRow extends Component {
 
 
 
-openTooltip = (targetId) => {
-  this.setState(prev => ({
-    tooltipOpenByTarget: { ...prev.tooltipOpenByTarget, [targetId]: true }
-  }));
-};
 
-closeTooltip = (targetId) => {
-  this.setState(prev => ({
-    tooltipOpenByTarget: { ...prev.tooltipOpenByTarget, [targetId]: false }
-  }));
-};
-
-onHoverFirstName = async (cuti, targetId) => {
-  this.openTooltip(targetId);
-
-  if (this.state.cachedProfilesByCuti[cuti]) {
-    this.setState({
-      profiles: this.state.cachedProfilesByCuti[cuti],
-      profilesLoading: false,
-      profilesError: ''
-    });
-    return;
-  }
-
-  this.setState({ profilesLoading: true, profilesError: '', profiles: [] });
+openProfilesModal = async (user) => {
+  this.setState({
+    profilesModalOpen: true,
+    profilesModalLoading: true,
+    profilesModalError: '',
+    profilesModalData: [],
+    profilesModalUser: user
+  });
 
   try {
-    const res = await findUserProfiles(cuti);
-    const profils = res || [];
-
-    this.setState(prev => ({
-      profiles: profils,
-      profilesLoading: false,
-      cachedProfilesByCuti: { ...prev.cachedProfilesByCuti, [cuti]: profils }
-    }));
+    const res = await findUserProfiles(user.appUserCode);
+    this.setState({
+      profilesModalData: res || [],
+      profilesModalLoading: false
+    });
   } catch (e) {
     this.setState({
-      profilesLoading: false,
-      profilesError: "Impossible de charger les profils",
-      profiles: []
+      profilesModalLoading: false,
+      profilesModalError: "Impossible de charger les profils"
     });
   }
+};
+
+closeProfilesModal = () => {
+  this.setState({
+    profilesModalOpen: false,
+    profilesModalUser: null,
+    profilesModalData: [],
+    profilesModalError: ''
+  });
 };
 
 
@@ -717,111 +663,114 @@ onHoverFirstName = async (cuti, targetId) => {
       );
     }
 
-    // ✅ ICI : ListUser (MODIFICATION SUR PRENOM)
     else if (this.props.ComponentName == 'ListUser') {
-      if (!(event.appUserCode))
-        return <Alert color='danger' style={{ position: 'absolute', BackgroundColor: "danger", left: '40%', top: '60%', fontSize: '20px' }}>Aucun utilisateur trouvé</Alert>
-
-      else {
-        return (
-          <tr className={" " + this.state.removed} >
-            {this.props.details.map((el, key) => {
-
-              if (el.nomColonne == "appUserCode")
-                return (
-                  <td key={el.colonneDisplay}>{(event.appUserCode) ? event.appUserCode : " "} </td>);
-
-              // ✅ MODIF : prénom avec tooltip
-              else if (el.nomColonne === 'appUserFirstName') {
-  const targetId = `prenom-${event.appUserCode}`;
-  const isOpen = !!this.state.tooltipOpenByTarget[targetId];
+  if (!event.appUserCode)
+    return (
+      <Alert color="danger" style={{ position: 'absolute', left: '40%', top: '60%' }}>
+        Aucun utilisateur trouvé
+      </Alert>
+    );
 
   return (
-    <td key={el.colonneDisplay}>
-      <span
-        id={targetId}
-        style={{ cursor: 'pointer', textDecoration: 'underline' }}
-        onMouseEnter={() => this.onHoverFirstName(event.appUserCode, targetId)}
-        onMouseLeave={() => this.closeTooltip(targetId)}
-      >
-        {event.appUserFirstName ? event.appUserFirstName : ' '}
-      </span>
+    <>
+      <tr className={" " + this.state.removed}>
+        {this.props.details.map((el) => {
 
-      <Tooltip
-        placement="top"
-        isOpen={isOpen}
-        target={targetId}
-        toggle={() =>
-          this.setState(prev => ({
-            tooltipOpenByTarget: {
-              ...prev.tooltipOpenByTarget,
-              [targetId]: !prev.tooltipOpenByTarget[targetId]
-            }
-          }))
-        }
-        autohide={false}
+          if (el.nomColonne === "appUserCode")
+            return <td key={el.colonneDisplay}>{event.appUserCode}</td>;
+
+          if (el.nomColonne === "appUserFirstName")
+            return (
+              <td key={el.colonneDisplay}>
+                {event.appUserFirstName}
+              </td>
+            );
+
+          if (el.nomColonne === "appUserLastName")
+            return <td key={el.colonneDisplay}>{event.appUserLastName}</td>;
+
+          if (el.nomColonne === "appUserEmail")
+            return <td key={el.colonneDisplay}>{event.appUserEmail}</td>;
+
+          if (el.nomColonne === "appUserState")
+            return (
+              <td key={el.colonneDisplay}>
+                <Badge color={event.appUserState === "Actif" ? "success" : "danger"} pill>
+                  {event.appUserState === "Actif" ? "Activé" : "Désactivé"}
+                </Badge>
+              </td>
+            );
+
+          return null;
+        })}
+
+        <td>
+          {/* 🔹 BOUTON OUVRIR POPUP */}
+          <Button
+            color="info"
+            size="sm"
+            className="mr-2"
+            onClick={() => this.openProfilesModal(event)}
+          >
+            <i className="fa fa-id-badge"></i>
+          </Button>
+
+          <Button
+            color="danger"
+            size="sm"
+            onClick={() => this.submitUserDelete(event.appUserCode, event.appUserState)}
+          >
+            <i className="fa fa-trash"></i>
+          </Button>
+        </td>
+      </tr>
+
+      {/* 🔹 POPUP PROFILS */}
+      <Dialog
+        open={this.state.profilesModalOpen}
+        onClose={this.closeProfilesModal}
+        fullWidth
+        maxWidth="sm"
       >
-        {this.state.profilesLoading && "Chargement des profils..."}
-        {!this.state.profilesLoading && this.state.profilesError && this.state.profilesError}
-        {!this.state.profilesLoading && !this.state.profilesError && (
-          this.state.profiles.length === 0
-            ? "Aucun profil"
-            : this.state.profiles.map(p => p.profileName).join(", ")
-        )}
-      </Tooltip>
-    </td>
+        <DialogTitle onClose={this.closeProfilesModal}>
+          Profils de {this.state.profilesModalUser?.appUserFirstName || ''}
+        </DialogTitle>
+
+        <DialogContent>
+          {this.state.profilesModalLoading && (
+            <Alert color="info">Chargement des profils...</Alert>
+          )}
+
+          {this.state.profilesModalError && (
+            <Alert color="danger">{this.state.profilesModalError}</Alert>
+          )}
+
+          {!this.state.profilesModalLoading &&
+            !this.state.profilesModalError &&
+            (this.state.profilesModalData.length === 0 ? (
+              <Alert color="warning">Aucun profil</Alert>
+            ) : (
+              this.state.profilesModalData.map(p => (
+                <Badge key={p.profileId} color="primary" className="mr-1 mb-1">
+                  {p.profileName}
+                </Badge>
+              ))
+            ))}
+        </DialogContent>
+
+        <DialogActions>
+          <Button color="secondary" onClick={this.closeProfilesModal}>
+            Fermer
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
   );
 }
 
-              else if (el.nomColonne == "appUserLastName")
-                return (
-                  <td key={el.colonneDisplay}> {(event.appUserLastName) ? event.appUserLastName : ' '}</td>);
 
-              else if (el.nomColonne == "appUserEmail")
-                return (
-                  <td key={el.colonneDisplay}> {(event.appUserEmail) ? event.appUserEmail : ' '}</td>);
 
-              else if (el.nomColonne == "appUserState")
-                return (
-                  <td key={el.colonneDisplay}>
-                    <Badge
-                      color={event.appUserState === "Actif" ? "success" : "danger"}
-                      pill>
-                      {(event.appUserState) === "Actif" ? "Activé" : 'Désactivé'}
-                    </Badge>
-                  </td>
-                );
-            })}
-            <td>
-              <Button color="danger" id={event.id * 55555} className="mr-2" onClick={(e) => this.submitUserDelete(event.appUserCode, event.appUserState)} size="sm">
-                <i className="fa fa-trash"></i></Button>
 
-              <Link to={`/gestionProfil/${event.appUserId}`}  >
-                <Button color="warning" size="sm" className="mr-2"><i className="fa fa-user-plus"></i></Button>
-              </Link>
-            </td>
-          </tr>
-        );
-      }
-    }
-
-    // ---- le reste de ton fichier inchangé (ActionLog, etc.) ----
-    else if (this.props.ComponentName == 'GestionHabilitation') {
-      if (!event.code)
-        return <Alert color='danger' style={{ position: 'absolute', BackgroundColor: "danger", left: '40%', top: '60%', fontSize: '20px' }}>Aucun résultat trouvé</Alert>
-      else return (
-        <tr className={" " + this.state.removed} >
-          {this.props.details.map((el, key) =>
-            <td key={el.colonneDisplay} >{event[el.nomColonne] != null ? event[el.nomColonne] : ' '} </td>
-          )}
-          <td>
-            {this.getAssociee(event)}
-          </td>
-        </tr>
-      );
-    }
-
-    // ... (tout le reste inchangé)
     else {
       return (
         <tr>
