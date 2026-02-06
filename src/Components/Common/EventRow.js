@@ -11,6 +11,8 @@ import { GrView } from "react-icons/gr";
 import { FaUnlockKeyhole } from "react-icons/fa6";
 import { PiFileCsvDuotone } from "react-icons/pi";
 import { findUserProfiles, changeStateUser } from '../../Services/userService';
+import MuiDialogTitle from '@material-ui/core/DialogTitle';
+
 
 import {
   Button,
@@ -83,20 +85,21 @@ const CustomDialogTitle = withStyles(theme => ({
 
 
 
-const DialogContent = withStyles(theme => ({
+const CustomDialogContent = withStyles(theme => ({
   root: {
     margin: 0,
     padding: theme.spacing.unit * 2,
   },
 }))(MuiDialogContent);
 
-const DialogActions = withStyles(theme => ({
+const CustomDialogActions = withStyles(theme => ({
   root: {
     borderTop: `1px solid ${theme.palette.divider}`,
     margin: 0,
     padding: theme.spacing.unit,
   },
 }))(MuiDialogActions);
+
 
 
 class EventRow extends Component {
@@ -241,15 +244,15 @@ class EventRow extends Component {
           open={this.state.openDialgAdd}
           display={{ backgroundColor: "transparent !important" }}
         >
-          <DialogContent>
+          <CustomDialogContent>
             <Alert
               color={this.state.colorAdd}>
               {this.state.res_add}
             </Alert>
-          </DialogContent>
-          <DialogActions>
+          </CustomDialogContent>
+          <CustomDialogActions>
             <Button onClick={() => this.setState({ openDialgAdd: false })} color="primary">Fermer </Button>
-          </DialogActions>
+          </CustomDialogActions>
         </Dialog>
 
       </div>;
@@ -261,15 +264,15 @@ class EventRow extends Component {
           open={this.state.openDialgAdd}
           display={{ backgroundColor: "transparent !important" }}
         >
-          <DialogContent>
+          <CustomDialogContent>
             <Alert
               color={this.state.colorAdd}>
               {this.state.res_add}
             </Alert>
-          </DialogContent>
-          <DialogActions>
+          </CustomDialogContent>
+          <CustomDialogActions>
             <Button onClick={() => this.setState({ openDialgAdd: false })} color="primary">Fermer </Button>
-          </DialogActions>
+          </CustomDialogActions>
         </Dialog>
       </div>
     }
@@ -331,12 +334,12 @@ class EventRow extends Component {
           open={this.state.openDialgAdd}
           display={{ backgroundColor: "transparent !important" }}
         >
-          <DialogContent>
+          <CustomDialogContent>
             <Alert
               color={this.state.colorAdd}>
               {this.state.res_add}
             </Alert>
-          </DialogContent>
+          </CustomDialogContent>
         </Dialog>
       </div>
 
@@ -349,12 +352,12 @@ class EventRow extends Component {
           open={this.state.openDialgAdd}
           display={{ backgroundColor: "transparent !important" }}
         >
-          <DialogContent>
+          <CustomDialogContent>
             <Alert
               color={this.state.colorAdd}>
               {this.state.res_add}
             </Alert>
-          </DialogContent>
+          </CustomDialogContent>
         </Dialog>
       </div>
 
@@ -542,7 +545,7 @@ class EventRow extends Component {
 
 
 openProfilesModal = async (user) => {
-  console.log("CLICK PROFILS", user); // 👈 ICI EXACTEMENT
+  console.log("CLICK PROFILS", user);
 
   this.setState({
     profilesModalOpen: true,
@@ -554,10 +557,14 @@ openProfilesModal = async (user) => {
 
   try {
     const res = await findUserProfiles(user.appUserCode);
-    console.log("PROFILS RECUS", res); // 👈 optionnel mais utile
+
+    // sécurisation de la réponse
+    const data = Array.isArray(res) ? res : (res?.data || []);
+
+    console.log("PROFILS RECUS", data);
 
     this.setState({
-      profilesModalData: res || [],
+      profilesModalData: data,
       profilesModalLoading: false
     });
   } catch (e) {
@@ -568,6 +575,7 @@ openProfilesModal = async (user) => {
     });
   }
 };
+
 
 
 closeProfilesModal = () => {
@@ -732,45 +740,47 @@ closeProfilesModal = () => {
       </tr>
 
       {/* 🔹 POPUP PROFILS */}
-      <Dialog
-        open={this.state.profilesModalOpen}
-        onClose={this.closeProfilesModal}
-        fullWidth
-        maxWidth="sm"
-      >
-        <CustomDialogTitle onClose={this.closeProfilesModal}>
-            Profils de {this.state.profilesModalUser?.appUserFirstName}
-        </CustomDialogTitle>
+   
+<Dialog
+  open={this.state.profilesModalOpen}
+  onClose={this.closeProfilesModal}
+  fullWidth
+  maxWidth="sm"
+>
+  <CustomDialogTitle onClose={this.closeProfilesModal}>
+    Profils de {this.state.profilesModalUser?.appUserFirstName || ''}
+  </CustomDialogTitle>
 
+  <CustomDialogContent>
+    {this.state.profilesModalLoading && (
+      <Alert color="info">Chargement des profils...</Alert>
+    )}
 
-        <DialogContent>
-          {this.state.profilesModalLoading && (
-            <Alert color="info">Chargement des profils...</Alert>
-          )}
+    {this.state.profilesModalError && (
+      <Alert color="danger">{this.state.profilesModalError}</Alert>
+    )}
 
-          {this.state.profilesModalError && (
-            <Alert color="danger">{this.state.profilesModalError}</Alert>
-          )}
+    {!this.state.profilesModalLoading &&
+      !this.state.profilesModalError &&
+      (this.state.profilesModalData.length === 0 ? (
+        <Alert color="warning">Aucun profil</Alert>
+      ) : (
+        this.state.profilesModalData.map((p, idx) => (
+  <Badge key={p.profileId || p.id || idx} color="primary" className="mr-1 mb-1">
+    {p.profileName || p.name || p.libelle}
+  </Badge>
+))
 
-          {!this.state.profilesModalLoading &&
-            !this.state.profilesModalError &&
-            (this.state.profilesModalData.length === 0 ? (
-              <Alert color="warning">Aucun profil</Alert>
-            ) : (
-              this.state.profilesModalData.map(p => (
-                <Badge key={p.profileId} color="primary" className="mr-1 mb-1">
-                  {p.profileName}
-                </Badge>
-              ))
-            ))}
-        </DialogContent>
+      ))}
+  </CustomDialogContent>
 
-        <DialogActions>
-          <Button color="secondary" onClick={this.closeProfilesModal}>
-            Fermer
-          </Button>
-        </DialogActions>
-      </Dialog>
+  <CustomDialogActions>
+    <Button color="secondary" onClick={this.closeProfilesModal}>
+      Fermer
+    </Button>
+  </CustomDialogActions>
+</Dialog>
+
     </>
   );
 }
