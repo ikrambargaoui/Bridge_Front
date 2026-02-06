@@ -10,7 +10,6 @@ import Switch from "react-switch";
 import { GrView } from "react-icons/gr";
 import { FaUnlockKeyhole } from "react-icons/fa6";
 import { PiFileCsvDuotone } from "react-icons/pi";
-import { Tooltip } from 'reactstrap';
 import { findUserProfiles } from '../../Services/userService';
 
 import {
