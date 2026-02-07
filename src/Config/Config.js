@@ -17,12 +17,19 @@ module.exports = {
 };
 */
 
-
-module.exports = {
+// Serveur Ikram
+/*module.exports = {
   Url: "http://192.168.56.101:1920",
+};*/
+
+
+//Local Ikram
+module.exports = {
+  Url: "http://localhost:1920",
 };
 
 
+/*
 /*module.exports = {
   Url: "https://prd-exstream.biat.int",
 };*/

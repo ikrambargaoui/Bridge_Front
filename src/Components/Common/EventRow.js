@@ -10,10 +10,6 @@ import Switch from "react-switch";
 import { GrView } from "react-icons/gr";
 import { FaUnlockKeyhole } from "react-icons/fa6";
 import { PiFileCsvDuotone } from "react-icons/pi";
-import { findUserProfiles, changeStateUser } from '../../Services/userService';
-import MuiDialogTitle from '@material-ui/core/DialogTitle';
-
-
 import {
   Button,
   Card,
@@ -22,8 +18,8 @@ import {
   Alert,
   Badge,
 } from 'reactstrap';
-
 import Dialog from '@material-ui/core/Dialog';
+import MuiDialogTitle from '@material-ui/core/DialogTitle';
 import MuiDialogContent from '@material-ui/core/DialogContent';
 import MuiDialogActions from '@material-ui/core/DialogActions';
 import IconButton from '@material-ui/core/IconButton';
@@ -53,15 +49,17 @@ import { deleteRightFromProfile } from '../../Services/rightService';
 import { AddRightToProfile } from '../../Services/rightService';
 import { updateCol } from '../../Services/columnService';
 import ActionLogDetail from '../ActionLog/ActionLogDetail'
+import { changeStateUser, findUserProfiles } from '../../Services/userService';
 
 
 
 
-const CustomDialogTitle = withStyles(theme => ({
+const DialogTitle = withStyles(theme => ({
   root: {
     borderBottom: `1px solid ${theme.palette.divider}`,
     margin: 0,
     padding: theme.spacing.unit * 2,
+
   },
   closeButton: {
     position: 'absolute',
@@ -75,7 +73,7 @@ const CustomDialogTitle = withStyles(theme => ({
     <MuiDialogTitle disableTypography className={classes.root}>
       <Typography variant="h6">{children}</Typography>
       {onClose ? (
-        <IconButton className={classes.closeButton} onClick={onClose}>
+        <IconButton aria-label="Close" className={classes.closeButton} onClick={onClose}>
           <CloseIcon />
         </IconButton>
       ) : null}
@@ -84,15 +82,14 @@ const CustomDialogTitle = withStyles(theme => ({
 });
 
 
-
-const CustomDialogContent = withStyles(theme => ({
+const DialogContent = withStyles(theme => ({
   root: {
     margin: 0,
     padding: theme.spacing.unit * 2,
   },
 }))(MuiDialogContent);
 
-const CustomDialogActions = withStyles(theme => ({
+const DialogActions = withStyles(theme => ({
   root: {
     borderTop: `1px solid ${theme.palette.divider}`,
     margin: 0,
@@ -101,20 +98,11 @@ const CustomDialogActions = withStyles(theme => ({
 }))(MuiDialogActions);
 
 
-
 class EventRow extends Component {
   constructor(props) {
     super(props);
     this.state = {
       open: false,
-      profilesLoading: false,
-      profiles: [],
-      profilesError: '',
-      profilesModalOpen: false,
-      profilesModalLoading: false,
-      profilesModalError: '',
-      profilesModalData: [],
-      profilesModalUser: null,
       mails: [],
       subject: '',
       content: '',
@@ -132,18 +120,21 @@ class EventRow extends Component {
       colorAdd: '',
       check: true,
       disabledBtnSendMail: false,
-      cachedProfilesByCuti: {} // cache pour éviter appels multiples
+      profilesModalOpen: false,
+      profilesModalLoading: false,
+      profilesModalError: '',
+      profilesModalData: [],
+      profilesModalUser: null,
+
     };
+
   }
-
- 
-
- 
 
 
 
   handleChange1 = (param1, param2) => {
     updateCol(param1, param2).then();
+
   };
 
 
@@ -189,6 +180,7 @@ class EventRow extends Component {
     } else {
       return <Button color="info" id={param.id * 55555} onClick={(e) => this.structure(e, param)} size="sm" className="mr-2">
         <i className="fa fa-plus"></i></Button>;
+
     }
   }
 
@@ -226,7 +218,6 @@ class EventRow extends Component {
       ).catch(err => console.log(err))
     }
   }
-
   handleViewDocument = () => {
     if (this.props.history) {
       this.props.history.push(`/document-view/${this.props.event.key}`);
@@ -234,7 +225,6 @@ class EventRow extends Component {
       console.error('History not available');
     }
   }
-
   getAffecteProfile = (idUser, event) => {
     if (event.affecte === 'O') {
       return <div> <Button color="danger" id={event.profileId} size="sm" onClick={() => this.RoleUser(idUser, event.profileId)}   >
@@ -244,15 +234,16 @@ class EventRow extends Component {
           open={this.state.openDialgAdd}
           display={{ backgroundColor: "transparent !important" }}
         >
-          <CustomDialogContent>
+          <DialogContent>
             <Alert
               color={this.state.colorAdd}>
               {this.state.res_add}
             </Alert>
-          </CustomDialogContent>
-          <CustomDialogActions>
+          </DialogContent>
+          <DialogActions>
+            {/*  <Button label="Message" color="success"> Envoyer </Button> */}
             <Button onClick={() => this.setState({ openDialgAdd: false })} color="primary">Fermer </Button>
-          </CustomDialogActions>
+          </DialogActions>
         </Dialog>
 
       </div>;
@@ -264,15 +255,16 @@ class EventRow extends Component {
           open={this.state.openDialgAdd}
           display={{ backgroundColor: "transparent !important" }}
         >
-          <CustomDialogContent>
+          <DialogContent>
             <Alert
               color={this.state.colorAdd}>
               {this.state.res_add}
             </Alert>
-          </CustomDialogContent>
-          <CustomDialogActions>
+          </DialogContent>
+          <DialogActions>
+            {/*  <Button label="Message" color="success"> Envoyer </Button> */}
             <Button onClick={() => this.setState({ openDialgAdd: false })} color="primary">Fermer </Button>
-          </CustomDialogActions>
+          </DialogActions>
         </Dialog>
       </div>
     }
@@ -318,7 +310,12 @@ class EventRow extends Component {
       ).catch(err => console.log(err))
 
     }
+    // console.log("res_add"+this.state.res_add)
   }
+
+
+
+
 
 
 
@@ -329,17 +326,19 @@ class EventRow extends Component {
         <Button color="danger" id={event.rightId} size="sm" onClick={() => this.RightProfile(idUser, event.rightId)}    >
           <i className="fa fa-trash"></i></Button>
 
+
+
         <Dialog
           onClose={this.handleClose}
           open={this.state.openDialgAdd}
           display={{ backgroundColor: "transparent !important" }}
         >
-          <CustomDialogContent>
+          <DialogContent>
             <Alert
               color={this.state.colorAdd}>
               {this.state.res_add}
             </Alert>
-          </CustomDialogContent>
+          </DialogContent>
         </Dialog>
       </div>
 
@@ -352,17 +351,21 @@ class EventRow extends Component {
           open={this.state.openDialgAdd}
           display={{ backgroundColor: "transparent !important" }}
         >
-          <CustomDialogContent>
+          <DialogContent>
             <Alert
               color={this.state.colorAdd}>
               {this.state.res_add}
             </Alert>
-          </CustomDialogContent>
+          </DialogContent>
         </Dialog>
       </div>
 
     }
   }
+
+
+
+
 
 
 
@@ -391,11 +394,22 @@ class EventRow extends Component {
   }
 
 
+
+
+
+
+
+
+
+
+
+  // On change handler
   onChange = (e) => {
     this.setState({ [e.target.name]: e.target.value });
   }
 
 
+  // Handle toggle
   handleToggle = value => () => {
     const { checked } = this.state;
     const currentIndex = checked.indexOf(value);
@@ -412,6 +426,7 @@ class EventRow extends Component {
 
 
 
+  //Download a pdf file
   download = (id, name) => {
     console.log('download  ', id, name)
     DownloadAPdf(id)
@@ -427,6 +442,7 @@ class EventRow extends Component {
   }
 
 
+  //Download a csv file
   downloadCsv = (id, name) => {
     console.log('download  ', id, name)
     DownloadACsv(id)
@@ -442,9 +458,15 @@ class EventRow extends Component {
   }
 
 
+
+
+
+
+  //remove visilbility of a document
   removeDoc = (param) => {
     removeADocument(param)
       .then((response) => {
+
         this.setState({ removed: "removed" })
       })
       .catch(err => console.log(err))
@@ -459,6 +481,7 @@ class EventRow extends Component {
       })
       .catch(err => console.log(err))
   }
+
 
 
 
@@ -509,6 +532,7 @@ class EventRow extends Component {
 
 
 
+
   submitDeleteDelegation = (id) => {
     confirmAlert({
       customUI: ({ onClose }) => {
@@ -542,10 +566,7 @@ class EventRow extends Component {
 
 
 
-
 openProfilesModal = async (user) => {
-  console.log("CLICK PROFILS", user);
-
   this.setState({
     profilesModalOpen: true,
     profilesModalLoading: true,
@@ -556,11 +577,8 @@ openProfilesModal = async (user) => {
 
   try {
     const res = await findUserProfiles(user.appUserCode);
+    const data = Array.isArray(res?.data) ? res.data : (Array.isArray(res) ? res : []);
 
-    // sécurisation de la réponse
-    const data = Array.isArray(res) ? res : (res?.data || []);
-
-    console.log("PROFILS RECUS", data);
 
     this.setState({
       profilesModalData: data,
@@ -575,8 +593,6 @@ openProfilesModal = async (user) => {
   }
 };
 
-
-
 closeProfilesModal = () => {
   this.setState({
     profilesModalOpen: false,
@@ -587,6 +603,10 @@ closeProfilesModal = () => {
 };
 
 
+handleClose = () => {
+  this.setState({ open: false, openSecondDialog: false, openDialgAdd: false });
+};
+
 
   render() {
     const isChecked = this.props.selectedDocs.some(doc => doc.key === this.props.event.key);
@@ -594,13 +614,12 @@ closeProfilesModal = () => {
     const check = this.state.check;
     const event = this.props.event;
     const res_mail = this.state.res_mail;
-
     if ((this.props.ComponentName == 'SimpleSearch') || (this.props.ComponentName == 'AdvancedSearch')) {
-      // ---- ton code inchangé ----
-      // (je laisse tel quel, pas besoin de toucher)
+
       if (!event.typeDocument && !event.accountNumber)
         return <Alert color='danger' style={{ position: 'absolute', BackgroundColor: "danger", left: '40%', top: '60%', fontSize: '20px' }}>Aucun document trouvé</Alert>
       else return (
+
         <tr key={event.key}>
           <td>
             <Checkbox
@@ -613,46 +632,77 @@ closeProfilesModal = () => {
           {this.props.details.map((el, key) => {
             if (el.nomColonne == 'accountingDate')
               return (<td key={el.colonneDisplay}> {event[el.nomColonne]}</td>);
+
+
+
             else if (el.nomColonne == 'accountNumber')
+
+
               return (
                 <td key={el.colonneDisplay}>
                   {(event.folderNumber).startsWith('LD')
                     ? (event.folderNumber) : (event.accountNumber)
+
                   }
+
                 </td>
               );
+
+
+
             else if (el.nomColonne == 'ctosAccountNumber')
+
+
               return (
                 <td key={el.colonneDisplay}>
                   {(event.folderNumber).startsWith('LD')
                     ? (event.migrefBiat) : (event.ctosAccountNumber)
+
                   }
+
                 </td>
               );
+
+
+
             else if (el.nomColonne == 'contentieux')
+
+
               return (
+
                 <td key={el.colonneDisplay}>
                   <Badge
                     color={event.contentieux === "NON" ? "success" : ((event.contentieux === "NON") ? "danger" : "")}
                     pill>
-                    {(event.contentieux) === "NON" ? "NON" : ((event.contentieux) === "OUI" ? "OUI" : "-")}
-                  </Badge>
-                </td>
+                    {(event.contentieux) === "NON" ? "NON" : ((event.contentieux) === "OUI" ? "OUI" : "-")}</Badge></td>
+
+
               );
+
+
+
             else if (el.nomColonne == 'transfertCtx')
+
+
               return (
+
                 <td key={el.colonneDisplay}>
                   <Badge
                     color={event.transfertCtx === "NON" ? "success" : ((event.transfertCtx === "NON") ? "danger" : "")}
                     pill>
-                    {(event.transfertCtx) === "NON" ? "NON" : ((event.transfertCtx) === "OUI" ? "OUI" : "-")}
-                  </Badge>
-                </td>
+                    {(event.transfertCtx) === "NON" ? "NON" : ((event.transfertCtx) === "OUI" ? "OUI" : "-")}</Badge></td>
+
+
               );
+
+
             else
               return (<td key={el.colonneDisplay} > {event[el.nomColonne] != null ? event[el.nomColonne] : ' '} </td>);
-          })}
+          }
+          )
+          }
           <td>
+
             <Button color='transparent' size="sm" className="mr-2" style={{ margin: "0px", padding: "0px" }}>
               <DialogInfo doc={event} />
             </Button>
@@ -671,136 +721,455 @@ closeProfilesModal = () => {
             <Button color="primary" size="sm" className="mr-2" onClick={() => this.download(event.key, event.fileNameOut)}><i className="fa fa-download"></i></Button>
             {event.fileNameOutCsv != null && <Button color="success" size="sm" className="mr-2" onClick={() => this.downloadCsv(event.key, event.fileNameOutCsv)}>csv</Button>
             }
+
+
+            <Dialog
+              onClose={this.handleClose}
+              open={this.state.openSecondDialog}
+              display={{ backgroundColor: "transparent !important" }}
+            >
+              <DialogContent style={{ backgroundColor: "#dbf2e3" }}>
+                <Alert
+                  color="success" style={{ backgroundColor: "#dbf2e3" }} >
+                  {res_mail.msg}
+                </Alert>
+              </DialogContent>
+            </Dialog>
+            <Dialog
+
+              onClose={this.handleClose}
+              aria-labelledby="customized-dialog-title"
+              open={this.state.open}
+            >
+              <DialogTitle id="customized-dialog-title" onClose={this.handleClose}   >
+                {/*  <Alert color="danger">
+
+{this.state.res_mail.msg}</Alert> */}
+                Envoi d'un document...
+
+              </DialogTitle>
+              <DialogContent>
+                <div className="container">
+                  <div className="panel panel-default">
+                    <div className="panel-heading">
+                      <h5 className="panel-title">
+                        Etes-vous sure de vouloir envoyer le document au client ?
+                      </h5>
+
+
+                      <h5 className="panel-title">
+                        E-MAIL(s):
+                      </h5>
+                      <List >
+                        {this.state.mails.map(value => (
+                          <ListItem key={value} role={undefined} dense button onClick={this.handleToggle(value)}>
+                            <Checkbox
+                              checked={this.state.checked.indexOf(value) !== -1}
+                              tabIndex={-1}
+                              disableRipple
+                            />
+                            <ListItemText primary={`${value}`} />
+                            <ListItemSecondaryAction>
+                              <IconButton aria-label="Comments">
+                                <CommentIcon />
+                              </IconButton>
+                            </ListItemSecondaryAction>
+                          </ListItem>
+                        ))}
+                      </List>
+                    </div>
+
+                  </div>
+                </div>
+                <TextField autoFocus margin="dense" id="email" name="email" value={this.state.email} label="Vous pouvez entrer un autre e-mail..." type="email" fullWidth onChange={this.onChange} />
+                <TextField autoFocus margin="dense" id="subject" name="subject" value={this.state.subject} label="Objet" type="text" fullWidth onChange={this.onChange} />
+                <div className="content-section implementation">
+                  <h5 className="first">Message: </h5>
+
+                  <Editor style={{ height: '200px' }} placeholder="Message..." id="content" htmlValue={this.state.content} onTextChange={(e) => this.setState({ content: e.htmlValue })} type="text" />
+                </div>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => this.send(this.state.param, this.state.subject, this.state.content, this.state.checked)} label="Message" color="success" disabled={this.state.disabledBtnSendMail}> Envoyer</Button>
+
+
+                <Button onClick={this.handleClose} color="primary">Annuler </Button>
+
+              </DialogActions>
+
+
+              <Alert
+                color="danger"
+                style={{ display: this.state.mailResultDisplay, position: 'absolute', left: '40%' }}>
+                {res_mail.msg}
+              </Alert>
+
+
+            </Dialog>
+            {
+              (this.props.roles.filter(el => el.profile_id === 8).length > 0) && <Button color="danger" size="sm" onClick={() => this.submitDelete(event.id)} ><i className="fa fa-trash" ></i></Button>
+            }
+
+          </td>
+
+        </tr>
+
+
+
+
+
+      );
+    }
+
+
+
+
+
+    else if (this.props.ComponentName == 'GestionHabilitation') {
+      if (!event.code)
+        return <Alert color='danger' style={{ position: 'absolute', BackgroundColor: "danger", left: '40%', top: '60%', fontSize: '20px' }}>Aucun résultat trouvé</Alert>
+      else return (
+        <tr className={" " + this.state.removed} >
+          {this.props.details.map((el, key) =>
+            <td key={el.colonneDisplay} >{event[el.nomColonne] != null ? event[el.nomColonne] : ' '} </td>
+          )
+          }
+          <td>
+            {this.getAssociee(event)}
+          </td>
+        </tr>
+
+      );
+
+
+
+
+
+
+    } else if (this.props.ComponentName == 'GestionStructure') {
+      if (!event.libelleStructure)
+        return <Alert color='danger' style={{ position: 'absolute', BackgroundColor: "danger", left: '40%', top: '60%', fontSize: '20px' }}>Aucune structure trouvée</Alert>
+      else return (
+        <tr className={" " + this.state.removed} >
+          {this.props.details.map((el, key) =>
+            <td key={el.colonneDisplay} >{event[el.nomColonne] != null ? event[el.nomColonne] : ' '} </td>
+          )
+          }
+          <td>
+            {this.getAssocieeStructure(event)}
+          </td>
+        </tr>
+
+      );
+    }
+
+    else if (this.props.ComponentName == 'ListUser') {
+  if (!event.appUserCode) {
+    return (
+      <Alert color='danger' style={{ position: 'absolute', left: '40%', top: '60%', fontSize: '20px' }}>
+        Aucun utilisateur trouvé
+      </Alert>
+    );
+  }
+
+  return (
+    <>
+      {/* ===== LIGNE TABLEAU ===== */}
+      <tr className={" " + this.state.removed}>
+        {this.props.details.map((el) => {
+
+          if (el.nomColonne === "appUserCode")
+            return <td key={el.colonneDisplay}>{event.appUserCode}</td>;
+
+          if (el.nomColonne === "appUserFirstName")
+            return (
+              <td key={el.colonneDisplay}>
+                <span
+                  onClick={() => this.openProfilesModal(event)}
+                  style={{ color: '#000', cursor: 'pointer', fontWeight: 'bold' }}
+                >
+                  {event.appUserFirstName || ' '}
+                </span>
+              </td>
+            );
+
+          if (el.nomColonne === "appUserLastName")
+            return <td key={el.colonneDisplay}>{event.appUserLastName || ' '}</td>;
+
+          if (el.nomColonne === "appUserEmail")
+            return <td key={el.colonneDisplay}>{event.appUserEmail || ' '}</td>;
+
+          if (el.nomColonne === "appUserState")
+            return (
+              <td key={el.colonneDisplay}>
+                <Badge color={event.appUserState === "Actif" ? "success" : "danger"} pill>
+                  {event.appUserState === "Actif" ? "Activé" : "Désactivé"}
+                </Badge>
+              </td>
+            );
+
+          return null;
+        })}
+
+        {/* ===== ACTIONS ===== */}
+        <td>
+          {/* Bouton profils */}
+          <Button
+            color="info"
+            size="sm"
+            className="mr-2"
+            onClick={() => this.openProfilesModal(event)}
+          >
+            <i className="fa fa-id-badge"></i>
+          </Button>
+
+          {/* Activer / désactiver */}
+          <Button
+            color="danger"
+            className="mr-2"
+            onClick={() => this.submitUserDelete(event.appUserCode, event.appUserState)}
+            size="sm"
+          >
+            <i className="fa fa-trash"></i>
+          </Button>
+
+          {/* Gestion profil */}
+          <Link to={`/gestionProfil/${event.appUserId}`}>
+            <Button color="warning" size="sm" className="mr-2">
+              <i className="fa fa-user-plus"></i>
+            </Button>
+          </Link>
+        </td>
+      </tr>
+
+      {/* ===== POPUP PROFILS ===== */}
+      <Dialog
+        open={this.state.profilesModalOpen}
+        onClose={this.closeProfilesModal}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle onClose={this.closeProfilesModal}>
+          Profils de {this.state.profilesModalUser?.appUserFirstName || ''} {this.state.profilesModalUser?.appUserLastName || ''}
+        </DialogTitle>
+
+        <DialogContent>
+          {this.state.profilesModalLoading && (
+            <Alert color="info">Chargement des profils...</Alert>
+          )}
+
+          {this.state.profilesModalError && (
+            <Alert color="danger">{this.state.profilesModalError}</Alert>
+          )}
+
+          {!this.state.profilesModalLoading && !this.state.profilesModalError && (
+            this.state.profilesModalData.length === 0 ? (
+              <Alert color="warning">Aucun profil associé</Alert>
+            ) : (
+              <div>
+                <p><strong>Utilisateur:</strong> {this.state.profilesModalUser?.appUserCode}</p>
+                <p><strong>Nombre de profils:</strong> {this.state.profilesModalData.length}</p>
+                <hr />
+                <h6>Liste des profils:</h6>
+
+                {this.state.profilesModalData.map((p, idx) => (
+                  <Badge
+                    key={p.profileId || p.id || idx}
+                    color="primary"
+                    className="mr-1 mb-1"
+                    style={{ fontSize: '1em', padding: '8px' }}
+                  >
+                    {p.profileName || p.name || p.libelle}
+                  </Badge>
+                ))}
+              </div>
+            )
+          )}
+        </DialogContent>
+
+        <DialogActions>
+          <Button color="secondary" onClick={this.closeProfilesModal}>
+            Fermer
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+}
+
+          
+
+    else if (this.props.ComponentName == 'ActionLog') {
+      if (!event.action && !event.structure && !event.user)
+        return <Alert color='danger' style={{ position: 'absolute', BackgroundColor: "danger", left: '40%', top: '60%', fontSize: '20px' }}>Aucun historique</Alert>
+      else return (
+
+        <tr className={" " + this.state.removed}>
+          {this.props.details.map((el, key) => {
+
+            if (el.nomColonne == 'action.actionLib')
+              return (
+                <td key={el.colonneDisplay}>{(event.action && event.action.actionLib) ? ((event.action.actionLib == 'Download') ? <IoMdDownload style={{ width: "20px", height: "20px", color: "#b2391f" }} /> : ((event.action.actionLib == 'View') ? <GrView style={{ width: "20px", height: "20px", color: "#df5059" }} /> : ((event.action.actionLib == 'SignIn') ? <FaUnlockKeyhole style={{ width: "18px", height: "18px", color: "#2b3472" }} /> : ((event.action.actionLib == 'DownloadCsv') ? <PiFileCsvDuotone style={{ width: "19px", height: "19px", color: "#337756" }} /> : '')))) : ' '}</td>);
+
+            else if (el.nomColonne == "user.appUserCode")
+              return (
+                <td key={el.colonneDisplay}> {(event.user && event.user.appUserCode) ? event.user.appUserCode : ' '}</td>);
+
+
+
+            else if (el.nomColonne == "account")
+              return (
+                <td key={el.colonneDisplay}> {(event && event.account) ? event.account : ' '}</td>);
+
+            else if (el.nomColonne == "docType")
+              return (
+                <td key={el.colonneDisplay}> {(event && event.docType) ? event.docType : ' '}</td>);
+            else if (el.nomColonne == "agency")
+              return (
+                <td key={el.colonneDisplay}> {(event && event.agency) ? event.agency : ' '}</td>);
+            else if (el.nomColonne == 'date')
+              return (
+                <td key={el.colonneDisplay}>  {(event && event.actionDateD) ? event.actionDateD : ' '}</td>);
+
+            else if (el.nomColonne == 'date')
+              return (
+                <td key={el.colonneDisplay}>  {(event && event.actionDateH) ? event.actionDateH : ' '}</td>);
+
+            else
+              return (
+                <td key={el.colonneDisplay}> {event[el.nomColonne] ? event[el.nomColonne] : ' '}</td>);
+          }
+          )}
+          <td>
+
+            <Button color='transparent' size="sm" className="mr-1 ml-0" style={{ margin: "0px", padding: "0px" }}>
+              <ActionLogDetail action={event} />
+            </Button>
           </td>
         </tr>
       );
     }
 
-    else if (this.props.ComponentName == 'ListUser') {
-      if (!event.appUserCode)
-        return (
-          <Alert color="danger" style={{ position: 'absolute', left: '40%', top: '60%' }}>
-            Aucun utilisateur trouvé
-          </Alert>
-        );
 
-      return (
-        <>
-          <tr className={" " + this.state.removed}>
-            {this.props.details.map((el) => {
+    else if (this.props.ComponentName == 'GestionDelegation') {
 
-              if (el.nomColonne === "appUserCode")
-                return <td key={el.colonneDisplay}>{event.appUserCode}</td>;
-
-              // MODIFICATION ICI : Prénom cliquable
-              if (el.nomColonne === "appUserFirstName")
-                return (
-                  <td key={el.colonneDisplay}>
-                    <span
-                      onClick={() => this.openProfilesModal(event)}
-                      style={{
-                        color: '#007bff',
-                        cursor: 'pointer',
-                        fontWeight: 'bold'
-                      }}
-                    >
-                      {event.appUserFirstName}
-                    </span>
-                  </td>
-                );
-
-              if (el.nomColonne === "appUserLastName")
-                return <td key={el.colonneDisplay}>{event.appUserLastName}</td>;
-
-              if (el.nomColonne === "appUserEmail")
-                return <td key={el.colonneDisplay}>{event.appUserEmail}</td>;
-
-              if (el.nomColonne === "appUserState")
-                return (
-                  <td key={el.colonneDisplay}>
-                    <Badge color={event.appUserState === "Actif" ? "success" : "danger"} pill>
-                      {event.appUserState === "Actif" ? "Activé" : "Désactivé"}
-                    </Badge>
-                  </td>
-                );
-
-              return null;
-            })}
-
-            <td>
-              {/* 🔹 BOUTON OUVRIR POPUP */}
-              <Button
-                color="info"
-                size="sm"
-                className="mr-2"
-                onClick={() => this.openProfilesModal(event)}
-              >
-                <i className="fa fa-id-badge"></i>
-              </Button>
-
-              <Button
-                color="danger"
-                size="sm"
-                onClick={() => this.submitUserDelete(event.appUserCode, event.appUserState)}
-              >
-                <i className="fa fa-trash"></i>
-              </Button>
-            </td>
-          </tr>
-
-          {/* 🔹 POPUP PROFILS */}
-          <Dialog
-            open={this.state.profilesModalOpen}
-            onClose={this.closeProfilesModal}
-            fullWidth
-            maxWidth="sm"
-          >
-            <CustomDialogTitle onClose={this.closeProfilesModal}>
-              Profils de {this.state.profilesModalUser?.appUserFirstName || ''} {this.state.profilesModalUser?.appUserLastName || ''}
-            </CustomDialogTitle>
-
-            <CustomDialogContent>
-              {this.state.profilesModalLoading && (
-                <Alert color="info">Chargement des profils...</Alert>
-              )}
-
-              {this.state.profilesModalError && (
-                <Alert color="danger">{this.state.profilesModalError}</Alert>
-              )}
-
-              {!this.state.profilesModalLoading &&
-                !this.state.profilesModalError &&
-                (this.state.profilesModalData.length === 0 ? (
-                  <Alert color="warning">Aucun profil associé</Alert>
-                ) : (
-                  <div>
-                    <p><strong>Utilisateur:</strong> {this.state.profilesModalUser?.appUserCode}</p>
-                    <p><strong>Nombre de profils:</strong> {this.state.profilesModalData.length}</p>
-                    <hr />
-                    <h6>Liste des profils:</h6>
-                    {this.state.profilesModalData.map((p, idx) => (
-                      <Badge 
-                        key={p.profileId || p.id || idx} 
-                        color="primary" 
-                        className="mr-1 mb-1"
-                        style={{ fontSize: '1em', padding: '8px' }}
-                      >
-                        {p.profileName || p.name || p.libelle}
-                      </Badge>
-                    ))}
-                  </div>
-                ))}
-            </CustomDialogContent>
-
-            <CustomDialogActions>
-              <Button color="secondary" onClick={this.closeProfilesModal}>
-                Fermer
-              </Button>
-            </CustomDialogActions>
-          </Dialog>
-        </>
+      if (!event.delegueNom && !event.dateFinDelegation && !event.dateDebDelegation)
+        return <Alert color='danger' style={{ position: 'absolute', BackgroundColor: "danger", left: '40%', top: '60%', fontSize: '20px' }}>No results found</Alert>
+      else return (
+        <tr className={" " + this.state.removed} >
+          {this.props.details.map((el, key) => {
+            if (el.nomColonne == 'dateDebDelegation' || el.nomColonne == 'dateFinDelegation')
+              return <td>{new Date(event[el.nomColonne]).toLocaleDateString()} </td>;
+            else
+              return <td >{event[el.nomColonne]}</td>;
+          })
+          }
+          <td>
+            <Button color="danger" id={event.delegationId} size="sm" onClick={() => this.submitDeleteDelegation(event.delegationId)}><i className="fa fa-trash"></i></Button>
+          </td>
+        </tr>
       );
     }
+
+    else if (this.props.ComponentName == 'GestionColonnes') {
+      return (
+        <tr className={" " + this.state.removed} >
+          {this.props.details.map((el, key) => {
+
+            if (el.nomColonne === 'nomVisibility' && event[el.nomColonne] === 'Actif') {
+
+              return <td> <Switch onChange={() => this.handleChange1(event.id, 'Inactif')} checked={true} id="small-switch" /></td>
+
+            }
+
+            else if (el.nomColonne === 'nomVisibility' && event[el.nomColonne] === 'Inactif') {
+
+              return <td> <Switch onChange={() => this.handleChange1(event.id, 'Actif')} checked={false} id="small-switch" /></td>
+
+            }
+            else
+              return <td >{event[el.nomColonne]}</td>
+          })
+          }
+
+        </tr>
+      );
+
+
+    }
+
+
+
+
+    else if (this.props.ComponentName == 'Profil') {
+      if (!event.appUserLastName && !event.appUserFirstName)
+        return <Alert color='danger' style={{ position: 'absolute', BackgroundColor: "danger", left: '40%', top: '60%', fontSize: '20px' }}>No results found</Alert>
+      else return (
+        <tr className={" " + this.state.removed} >
+          {this.props.details.map((el, key) => {
+
+            return <td >{event[el.nomColonne]}</td>;
+          })
+          }
+          <td>
+            <Link to={`/gestionProfil/${event.appUserId}`}  > <Button color="info" size="sm" ><i className="cui-user"></i></Button></Link>
+          </td> 2.
+        </tr>
+      );
+    }
+
+
+
+    else if (this.props.ComponentName == 'GestionProfil') {
+      if (!event.profileName && !event.profileDescription)
+        return <Alert color='danger' style={{ position: 'absolute', BackgroundColor: "danger", left: '40%', top: '60%', fontSize: '20px' }}>No results found</Alert>
+      else return (
+        <tr className={" " + this.state.removed} >
+          {this.props.details.map((el, key) => {
+            return <td >{event[el.nomColonne]}</td>;
+          })
+          }
+          <td>
+            {this.getAffecteProfile(this.props.idUser, event)}
+          </td>
+        </tr>
+      );
+    }
+
+
+    else if (this.props.ComponentName == 'AllProfils') {
+      return (
+        <tr className={" " + this.state.removed} >
+          {this.props.details.map((el, key) => {
+            if (el.nomColonne == 'dateDebDelegation' || el.nomColonne == 'dateFinDelegation')
+              return <td>{new Date(event[el.nomColonne]).toLocaleDateString()} </td>;
+            else
+              return <td >{event[el.nomColonne]}</td>;
+          })
+          }
+          <td>
+            <Link to={`/gestionRight/${event.profileId}`}  > <Button color="info" size="sm" ><i className="cui-user"></i></Button></Link>
+          </td>
+        </tr>
+      );
+    }
+    else if (this.props.ComponentName == 'GestionRight') {
+      return (
+        <tr className={" " + this.state.removed} >
+          {this.props.details.map((el, key) => {
+            if (el.nomColonne == 'dateDebDelegation' || el.nomColonne == 'dateFinDelegation')
+              return <td>{new Date(event[el.nomColonne]).toLocaleDateString()} </td>;
+            else
+              return <td >{event[el.nomColonne]}</td>;
+          })
+          }
+          <td>
+            {this.getAffecteRight(this.props.idUser, event)}
+          </td>
+        </tr>
+      );
+    }
+
 
     else {
       return (
@@ -821,4 +1190,4 @@ export default connect(mapStateToProps, {})(EventRow)
 
 
 
-/*Ikram*/
+
